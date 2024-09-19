@@ -25,9 +25,9 @@ How to Contribute
 We welcome contributions from developers, designers, and supporters of our mission. Here’s how you can help:
 
 Clone the Repository:
-'''
-git clone https://github.com/yourusername/lewis-foundation-website.git
-'''
+
+## git clone https://github.com/yourusername/lewis-foundation-website.git
+
 Create a Branch:
 '''
 git checkout -b your-branch-name
