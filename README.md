@@ -1,5 +1,5 @@
 
-# The Lewis Foundation
+# The LewisPaul Foundation
 ### In Memory of Lewis Paul
 A Foundation Supporting Sickle Cell Anemia Awareness and Research
 
