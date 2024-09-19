@@ -5,7 +5,7 @@ from .forms import ChatForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
-from .models import Chat
+from .models import Chat, Memorial, Donation
 
 # Create your views here.
 def home(request):
@@ -31,3 +31,16 @@ def chat(request):
 def chatview(request):
     chats = Chat.objects.all()
     return render(request, 'foundation/chatview.html', {'chats':chats})
+
+def home(request):
+    return render(request, 'foundation/home.html')
+
+def memorial(request):
+    memorial_entries = Memorial.objects.all()
+    return render(request, 'foundation/memorial.html', {'memorial_entries': memorial_entries})
+
+def donate(request):
+    if request.method == 'POST':
+        # Handle donation form submission
+        pass
+    return render(request, 'foundation/donate.html')
