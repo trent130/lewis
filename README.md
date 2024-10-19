@@ -39,6 +39,7 @@ Submit a Pull Request after making your changes.
 4. GitHub Pages - Hosting for the static website(TBD)
 ### License
 This project is licensed under the MIT License. See the **LICENSE** file for details.
+still i  the works right now
 
 ## Contact Information
 If you have any questions or would like to get involved, please contact us at:
