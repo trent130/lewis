@@ -1,0 +1,200 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const lifeEvents = [
+  {
+    year: "1990",
+    title: "Early Life",
+    description: "Lewis Paul was born in London to a loving family who soon discovered he had sickle cell disease."
+  },
+  {
+    year: "1995-2008",
+    title: "School Years",
+    description: "Despite frequent hospital visits, Lewis maintained excellent academic performance and inspired his classmates with his resilience."
+  },
+  {
+    year: "2009-2015",
+    title: "Advocacy Work",
+    description: "Began raising awareness about sickle cell disease, speaking at schools and community centers, helping others understand and cope with the condition."
+  },
+  {
+    year: "2016",
+    title: "Legacy",
+    description: "Though his life was cut short, his impact on the sickle cell community continues to inspire hope and change through the foundation that bears his name."
+  }
+];
+---
+
+<Layout title="Lewis Paul's Story | Lewis Paul Foundation">
+	<main>
+		<section class="hero-bio">
+			<div class="hero-content">
+				<h1>Lewis Paul's Story</h1>
+				<p class="tagline">A Legacy of Hope and Resilience</p>
+			</div>
+		</section>
+
+		<section class="biography">
+			<div class="container">
+				<div class="bio-content">
+					<div class="bio-text">
+						<h2>A Life of Purpose</h2>
+						<p class="intro">
+							Lewis Paul was more than just our foundation's namesake – he was a beacon of hope, 
+							resilience, and unwavering spirit in the face of sickle cell disease. His story 
+							continues to inspire countless individuals living with sickle cell anemia.
+						</p>
+						
+						<div class="quote">
+							<blockquote>
+								"Being diagnosed with sickle cell disease doesn't define your limits. 
+								It's how you choose to live despite it that matters."
+							</blockquote>
+							<cite>- Lewis Paul</cite>
+						</div>
+
+						<div class="timeline">
+							{lifeEvents.map(event => (
+								<div class="timeline-item">
+									<div class="year">{event.year}</div>
+									<div class="content">
+										<h3>{event.title}</h3>
+										<p>{event.description}</p>
+									</div>
+								</div>
+							))}
+						</div>
+
+						<div class="message">
+							<h3>A Message of Hope</h3>
+							<p>
+								Lewis showed us that it's okay to not be okay, and that strength comes in many forms. 
+								His journey with sickle cell disease wasn't just about survival – it was about thriving 
+								and helping others do the same. Today, his legacy lives on through every person we help, 
+								every awareness campaign we run, and every life we touch.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.hero-bio {
+		background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lewis-hero.jpg');
+		background-size: cover;
+		background-position: center;
+		height: 60vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		color: white;
+		margin-top: 64px;
+	}
+
+	.hero-content {
+		max-width: 800px;
+		padding: 2rem;
+	}
+
+	.hero-content h1 {
+		font-size: 3.5rem;
+		font-weight: 700;
+		margin-bottom: 1rem;
+	}
+
+	.tagline {
+		font-size: 1.5rem;
+		margin-bottom: 2rem;
+	}
+
+	.biography {
+		padding: 4rem 1rem;
+	}
+
+	.container {
+		max-width: 1000px;
+		margin: 0 auto;
+	}
+
+	.bio-content {
+		background: white;
+		padding: 2rem;
+		border-radius: 8px;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	.intro {
+		font-size: 1.2rem;
+		line-height: 1.8;
+		margin-bottom: 2rem;
+		color: #2d3748;
+	}
+
+	.quote {
+		background: #f7fafc;
+		padding: 2rem;
+		border-left: 4px solid #e53e3e;
+		margin: 2rem 0;
+		border-radius: 0 8px 8px 0;
+	}
+
+	blockquote {
+		font-size: 1.25rem;
+		font-style: italic;
+		color: #2d3748;
+		margin-bottom: 1rem;
+	}
+
+	cite {
+		color: #4a5568;
+		font-weight: 500;
+	}
+
+	.timeline {
+		margin: 3rem 0;
+	}
+
+	.timeline-item {
+		display: grid;
+		grid-template-columns: 120px 1fr;
+		gap: 2rem;
+		margin-bottom: 2rem;
+	}
+
+	.year {
+		font-weight: 700;
+		color: #e53e3e;
+	}
+
+	.timeline-item h3 {
+		margin-bottom: 0.5rem;
+		color: #2d3748;
+	}
+
+	.message {
+		background: #f7fafc;
+		padding: 2rem;
+		border-radius: 8px;
+		margin-top: 3rem;
+	}
+
+	.message h3 {
+		color: #e53e3e;
+		margin-bottom: 1rem;
+	}
+
+	@media (max-width: 768px) {
+		.timeline-item {
+			grid-template-columns: 1fr;
+			gap: 0.5rem;
+		}
+
+		.hero-content h1 {
+			font-size: 2.5rem;
+		}
+	}
+</style>

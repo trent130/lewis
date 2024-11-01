@@ -1,0 +1,55 @@
+---
+import { Toaster } from 'react-hot-toast';
+import Navigation from '../components/Navigation';
+import AuthProvider from '../components/auth/AuthProvider';
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Lewis Paul Foundation - Supporting Sickle Cell Warriors & Their Families" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	</head>
+	<body>
+		<AuthProvider client:load>
+			<Navigation client:load />
+			<Toaster position="top-right" />
+			<slot />
+		</AuthProvider>
+	</body>
+</html>
+
+<style is:global>
+	:root {
+		--primary-color: #e53e3e;
+		--text-color: #2d3748;
+		--bg-color: #ffffff;
+	}
+
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+
+	html {
+		font-family: 'Inter', system-ui, sans-serif;
+		scroll-behavior: smooth;
+	}
+
+	body {
+		background: var(--bg-color);
+		color: var(--text-color);
+	}
+</style>

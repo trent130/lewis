@@ -1,0 +1,260 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const donationTiers = [
+	{
+		name: "Friend",
+		amount: "25",
+		benefits: ["Support Educational Programs", "Monthly Newsletter", "Foundation Badge"]
+	},
+	{
+		name: "Advocate",
+		amount: "100",
+		benefits: ["Friend Benefits", "Quarterly Impact Report", "Foundation T-Shirt"]
+	},
+	{
+		name: "Champion",
+		amount: "500",
+		benefits: ["Advocate Benefits", "VIP Event Access", "Personal Impact Update", "Recognition on Website"]
+	}
+];
+---
+
+<Layout title="Donate | Lewis Paul Foundation">
+	<main>
+		<section class="donate-hero">
+			<div class="hero-content">
+				<h1>Make a Difference Today</h1>
+				<p class="tagline">Your Support Powers Our Mission</p>
+			</div>
+		</section>
+
+		<section class="donation-content">
+			<div class="container">
+				<div class="impact-section">
+					<h2>Your Impact</h2>
+					<div class="impact-grid">
+						<div class="impact-card">
+							<h3>Medical Support</h3>
+							<p>Help provide medical assistance and treatment support for sickle cell warriors.</p>
+						</div>
+						<div class="impact-card">
+							<h3>Research</h3>
+							<p>Fund critical research initiatives to improve treatments and find better solutions.</p>
+						</div>
+						<div class="impact-card">
+							<h3>Education</h3>
+							<p>Support awareness programs and educational resources for communities.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="donation-tiers">
+					<h2>Ways to Give</h2>
+					<div class="tier-grid">
+						{donationTiers.map(tier => (
+							<div class="tier-card">
+								<h3>{tier.name}</h3>
+								<div class="amount">${tier.amount}</div>
+								<ul>
+									{tier.benefits.map(benefit => (
+										<li>{benefit}</li>
+									))}
+								</ul>
+								<button class="donate-button">Donate Now</button>
+							</div>
+						))}
+					</div>
+				</div>
+
+				<div class="custom-donation">
+					<h2>Custom Donation</h2>
+					<div class="custom-form">
+						<div class="amount-input">
+							<label for="custom-amount">Enter Amount</label>
+							<div class="input-wrapper">
+								<span class="currency">$</span>
+								<input type="number" id="custom-amount" min="1" placeholder="0">
+							</div>
+						</div>
+						<button class="donate-button">Donate</button>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.donate-hero {
+		background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/donate-hero.jpg');
+		background-size: cover;
+		background-position: center;
+		height: 50vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		color: white;
+		margin-top: 64px;
+	}
+
+	.hero-content {
+		max-width: 800px;
+		padding: 2rem;
+	}
+
+	.hero-content h1 {
+		font-size: 3.5rem;
+		font-weight: 700;
+		margin-bottom: 1rem;
+	}
+
+	.tagline {
+		font-size: 1.5rem;
+	}
+
+	.donation-content {
+		padding: 4rem 1rem;
+	}
+
+	.container {
+		max-width: 1200px;
+		margin: 0 auto;
+	}
+
+	.impact-section {
+		margin-bottom: 4rem;
+	}
+
+	h2 {
+		text-align: center;
+		font-size: 2.5rem;
+		color: #2d3748;
+		margin-bottom: 2rem;
+	}
+
+	.impact-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: 2rem;
+		margin-bottom: 4rem;
+	}
+
+	.impact-card {
+		background: #f7fafc;
+		padding: 2rem;
+		border-radius: 8px;
+		text-align: center;
+	}
+
+	.impact-card h3 {
+		color: #e53e3e;
+		margin-bottom: 1rem;
+	}
+
+	.tier-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 2rem;
+		margin-bottom: 4rem;
+	}
+
+	.tier-card {
+		background: white;
+		padding: 2rem;
+		border-radius: 8px;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		text-align: center;
+	}
+
+	.tier-card h3 {
+		color: #2d3748;
+		margin-bottom: 1rem;
+	}
+
+	.amount {
+		font-size: 2.5rem;
+		font-weight: 700;
+		color: #e53e3e;
+		margin-bottom: 1.5rem;
+	}
+
+	.tier-card ul {
+		list-style: none;
+		padding: 0;
+		margin-bottom: 2rem;
+	}
+
+	.tier-card li {
+		margin-bottom: 0.5rem;
+		color: #4a5568;
+	}
+
+	.donate-button {
+		background-color: #e53e3e;
+		color: white;
+		padding: 1rem 2rem;
+		border: none;
+		border-radius: 0.5rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background-color 0.3s;
+		width: 100%;
+	}
+
+	.donate-button:hover {
+		background-color: #c53030;
+	}
+
+	.custom-donation {
+		max-width: 600px;
+		margin: 0 auto;
+	}
+
+	.custom-form {
+		background: white;
+		padding: 2rem;
+		border-radius: 8px;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	.amount-input {
+		margin-bottom: 1.5rem;
+	}
+
+	.amount-input label {
+		display: block;
+		margin-bottom: 0.5rem;
+		font-weight: 600;
+		color: #2d3748;
+	}
+
+	.input-wrapper {
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+
+	.currency {
+		position: absolute;
+		left: 1rem;
+		color: #4a5568;
+		font-weight: 600;
+	}
+
+	input[type="number"] {
+		width: 100%;
+		padding: 1rem;
+		padding-left: 2.5rem;
+		border: 1px solid #e2e8f0;
+		border-radius: 0.5rem;
+		font-size: 1.25rem;
+	}
+
+	@media (max-width: 768px) {
+		.hero-content h1 {
+			font-size: 2.5rem;
+		}
+	}
+</style>

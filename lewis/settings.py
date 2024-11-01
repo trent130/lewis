@@ -65,16 +65,24 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'foundation.apps.FoundationConfig',
-]
+    'rest_framework',
+    'corsheaders',
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CORS_ALLOWED_ORIGIN = [
+    'http://localhost:4321',
+    'http://127.0.0.1:4321',
 ]
 
 ROOT_URLCONF = 'lewis.urls'
@@ -96,6 +104,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'lewis.wsgi.application'
+
+CORS_ALLOW_CREDENTIALS = True
 
 
 # Database
