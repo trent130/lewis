@@ -20,7 +20,7 @@ export default function Navigation() {
             </a>
           </div>
 
-          <div className="flex items-center">
+          <div className="flex items-center flex-grow">
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 <span className="text-gray-700">Welcome, {user?.name}</span>
