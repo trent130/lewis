@@ -13,7 +13,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     // Check authentication status on mount
     const checkAuth = async () => {
       try {
-        const { data } = await api.get('/api/auth/me/');
+        const { data } = await api.get('/users/me/');
         if (data.user) {
           useAuthStore.setState({ 
             user: data.user, 

@@ -8,10 +8,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = "CustomUser"
-        fields = ['id', 'email', 'username', 'first_name', 'last_name',  'password']
+        fields = ['id', 'email', 'username', 'password']
         read_only_fields = ['id']
 
-    def create(self, **validated_data):
+    def create(self, validated_data):
         user = CustomUser(**validated_data)
         user.set_password(validated_data['password'])
         user.save()
@@ -25,7 +25,7 @@ class LoginSerializer(serializers.Serializer):
         email = data.get('email')
         password = data.get('password')
 
-        user = authenticate(request=request.context.self('request'), username=email, password=password)
+        user = authenticate(request=self.context.get('request'), username=email, password=password)
 
         if user is None:
             raise serializers.ValidationError('data mismatch')

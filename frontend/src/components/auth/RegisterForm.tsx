@@ -6,9 +6,9 @@ import { useAuthStore } from '../../stores/authStore';
 import toast from 'react-hot-toast';
 
 const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
+  username: z.string().min(5, 'Name must be at least 5 characters'),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -26,7 +26,7 @@ export default function RegisterForm() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       await registerUser({
-        name: data.name,
+        name: data.username,
         email: data.email,
         password: data.password
       });
@@ -39,16 +39,16 @@ export default function RegisterForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Name
+        <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+          username
         </label>
         <input
-          {...register('name')}
+          {...register('username')}
           type="text"
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
         />
-        {errors.name && (
-          <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+        {errors.username && (
+          <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
         )}
       </div>
 

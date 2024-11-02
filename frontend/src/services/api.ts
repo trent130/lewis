@@ -9,8 +9,8 @@ const api = axios.create({
 // Request interceptor to add CSRF token
 api.interceptors.request.use(async (config) => {
   try {
-    const { data } = await axios.get('http://127.0.0.1:8000/get_csrf');
-    config.headers['X-CSRFToken'] = data.csrf_token;
+    const { data } = await axios.get('http://127.0.0.1:8000/users/get_csrf/');
+    config.headers['X-CSRFToken'] = data.csrfToken;
   } catch (error) {
     toast.error('Failed to fetch CSRF token');
   }
@@ -29,15 +29,15 @@ api.interceptors.response.use(
 
 export const authApi = {
   login: async (credentials: { email: string; password: string }) => {
-    const { data } = await api.post('/http://127.0.0.1:8000/login/', credentials);
+    const { data } = await api.post('/users/login/', credentials);
     return data;
   },
-  register: async (userData: { email: string; password: string; name: string }) => {
-    const { data } = await api.post('/http://127.0.0.1:8000/register/', userData);
+  register: async (userData: { email: string; password: string; username: string }) => {
+    const { data } = await api.post('/users/register/', userData);
     return data;
   },
   logout: async () => {
-    const { data } = await api.post('/http://127.0.0.1:8000/logout/');
+    const { data } = await api.post('/users/logout/');
     return data;
   }
 };

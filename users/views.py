@@ -44,3 +44,6 @@ class UserLoginView(generics.GenericAPIView):
                 },
             }, status = status.HTTP_200_OK)
 
+def authentificationView(request):
+    if is_authenticated:
+        return JsonResponse({'username': request.username})
