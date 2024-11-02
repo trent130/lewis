@@ -1,0 +1,6 @@
+foundation/migrations/__pycache__/
+lewis/__pycache__/
+users/__pycache__/
+users/migrations/__pycache__/
+foundation/__pycache__/
+db.sqlite3

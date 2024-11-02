@@ -29,15 +29,15 @@ api.interceptors.response.use(
 
 export const authApi = {
   login: async (credentials: { email: string; password: string }) => {
-    const { data } = await api.post('/api/auth/login/', credentials);
+    const { data } = await api.post('/http://127.0.0.1:8000/login/', credentials);
     return data;
   },
   register: async (userData: { email: string; password: string; name: string }) => {
-    const { data } = await api.post('/api/auth/register/', userData);
+    const { data } = await api.post('/http://127.0.0.1:8000/register/', userData);
     return data;
   },
   logout: async () => {
-    const { data } = await api.post('/api/auth/logout/');
+    const { data } = await api.post('/http://127.0.0.1:8000/logout/');
     return data;
   }
 };
