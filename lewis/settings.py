@@ -67,7 +67,8 @@ INSTALLED_APPS = [
     'foundation.apps.FoundationConfig',
     'rest_framework',
     'corsheaders',
-    'users'
+    'users',
+    'rest_framework_simplejwt',
     ]
 
 MIDDLEWARE = [
@@ -85,6 +86,18 @@ CORS_ALLOWED_ORIGIN = [
     'http://localhost:4321',
     'http://127.0.0.1:4321',
 ]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "OPTIONS",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'lewis.urls'
 
@@ -120,6 +133,24 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = 'users.CustomUser'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ),
+}
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  # Adjust as needed
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Adjust as needed
+    'ROTATE_REFRESH_TOKENS': True,                  # Allows refresh token rotation
+    'BLACKLIST_AFTER_ROTATION': True,               # Blacklist the rotated token
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

@@ -1,9 +1,9 @@
 from django.db import models
-from users.models import CustomUser
+# from django.contrib.auth import get_user_model
 
 # Create your models here.
 class Chat(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default='')
+    user = models.ForeignKey("users.CustomUser", on_delete=models.CASCADE)
     message = models.TextField()
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

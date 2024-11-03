@@ -1,5 +1,5 @@
 from .models import CustomUser
-from rest_framework import serializers, status
+from rest_framework import serializers
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 
@@ -7,7 +7,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     
     class Meta:
-        model = "CustomUser"
+        model = CustomUser
         fields = ['id', 'email', 'username', 'password']
         read_only_fields = ['id']
 

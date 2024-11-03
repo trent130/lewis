@@ -19,15 +19,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const data = await authApi.login(credentials);
       set({ user: data.user, isAuthenticated: true });
+    } catch (error) {
+
+      console.error("Login failed:", error);
     } finally {
       set({ isLoading: false });
     }
   },
+  
   register: async (userData) => {
     set({ isLoading: true });
     try {
       const data = await authApi.register(userData);
       set({ user: data.user, isAuthenticated: true });
+    } catch (error) {
+      console.error("Login failed:", error);
     } finally {
       set({ isLoading: false });
     }
@@ -42,3 +48,4 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   }
 }));
+

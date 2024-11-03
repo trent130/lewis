@@ -13,16 +13,16 @@ def csrfTokenView(request):
     return JsonResponse({'csrfToken': get_token(request)})
 
 class UserRegistrationView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.AllowAny]
-    queryset = CustomUser.objects.all()
-
+    
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # Return validation errors instead of data on failure
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserLoginView(generics.GenericAPIView):
@@ -44,6 +44,13 @@ class UserLoginView(generics.GenericAPIView):
                 },
             }, status = status.HTTP_200_OK)
 
-def authentificationView(request):
-    if is_authenticated:
-        return JsonResponse({'username': request.username})
+class CurrentUser(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        data = {
+            'username': user.username,
+            'email': user.email,
+        }
+        return Response(data)
