@@ -1,27 +1,59 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import LoginForm from '../components/auth/LoginForm';
-import { Modal } from '../components/ui/Modal';
 ---
 
 <Layout title="Login | Lewis Paul Foundation">
-  <main class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-    <div class="max-w-md w-full">
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Welcome Back</h1>
-        <p class="mt-2 text-gray-600">Please sign in to your account</p>
-      </div>
-      
-      <div class="bg-white p-8 rounded-lg shadow-md">
+  <main class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        Welcome Back
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        Sign in to your account to continue your journey with us
+      </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <LoginForm client:load />
-        
-        <div class="mt-6 text-center">
-          <p class="text-sm text-gray-600">
-            Don't have an account?{' '}
-            <a href="/register" class="text-red-600 hover:text-red-700 font-medium">
-              Register here
-            </a>
-          </p>
+
+        <div class="mt-6">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <span class="sr-only">Sign in with Google</span>
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
+              </svg>
+            </button>
+
+            <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <span class="sr-only">Sign in with Facebook</span>
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <div class="text-center">
+            <p class="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <a href="/register" class="font-medium text-red-600 hover:text-red-500">
+                Register here
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -1,20 +1,27 @@
+// services/api.ts
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const api = axios.create({
   baseURL: 'http://127.0.0.1:8000',
-  withCredentials: true
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  }
 });
 
 // Request interceptor to add CSRF token
 api.interceptors.request.use(async (config) => {
   try {
-    const { data } = await axios.get('http://127.0.0.1:8000/users/get_csrf/');
+    const { data } = await axios.get('http://127.0.0.1:8000/users/get_csrf/', {
+      withCredentials: true
+    });
     config.headers['X-CSRFToken'] = data.csrfToken;
+    return config;
   } catch (error) {
     toast.error('Failed to fetch CSRF token');
+    return Promise.reject(error);
   }
-  return config;
 });
 
 // Response interceptor for error handling
@@ -23,22 +30,40 @@ api.interceptors.response.use(
   (error) => {
     const message = error.response?.data?.message || 'An error occurred';
     toast.error(message);
+    console.error('API Error:', error.response?.data);
     return Promise.reject(error);
   }
 );
 
 export const authApi = {
   login: async (credentials: { email: string; password: string }) => {
-    const { data } = await api.post('/users/login/', credentials);
-    return data;
+    try {
+      const { data } = await api.post('/users/login/', credentials);
+      return data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   },
+
   register: async (userData: { email: string; password: string; username: string }) => {
-    const { data } = await api.post('/users/register/', userData);
-    return data;
+    try {
+      const { data } = await api.post('/users/register/', userData);
+      return data;
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    }
   },
+
   logout: async () => {
-    const { data } = await api.post('/users/logout/');
-    return data;
+    try {
+      const { data } = await api.post('/users/logout/');
+      return data;
+    } catch (error) {
+      console.error('Logout error:', error);
+      throw error;
+    }
   }
 };
 

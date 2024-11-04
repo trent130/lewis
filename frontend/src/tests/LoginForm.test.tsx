@@ -1,10 +1,19 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LoginForm from '../components/auth/LoginForm';
 import { useAuthStore } from '../stores/authStore';
 
-vi.mock('../stores/authStore');
+// Define the interface for the return type of useAuthStore
+interface AuthStore {
+  login: (credentials: { email: string; password: string }) => void;
+  isLoading: boolean;
+}
+
+// Mock the entire authStore module
+vi.mock('../stores/authStore', () => ({
+  useAuthStore: vi.fn()
+}));
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -12,6 +21,12 @@ afterEach(() => {
 
 describe('LoginForm', () => {
   it('validates required fields', async () => {
+    // Mock the return value with the defined interface
+    (useAuthStore as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      login: vi.fn(),
+      isLoading: false,
+    } as AuthStore);
+
     render(<LoginForm />);
     
     const submitButton = screen.getByRole('button', { name: /login/i });
@@ -23,17 +38,17 @@ describe('LoginForm', () => {
 
   it('submits form with valid data', async () => {
     const mockLogin = vi.fn();
-    vi.mocked(useAuthStore).mockReturnValue({
+    (useAuthStore as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       login: mockLogin,
       isLoading: false,
-    });
-
+    } as AuthStore);
+  
     render(<LoginForm />);
-    
+  
     await userEvent.type(screen.getByLabelText(/email/i), 'test@example.com');
     await userEvent.type(screen.getByLabelText(/password/i), 'password123');
     await userEvent.click(screen.getByRole('button', { name: /login/i }));
-
+  
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith({
         email: 'test@example.com',

@@ -4,3 +4,4 @@ users/__pycache__/
 users/migrations/__pycache__/
 foundation/__pycache__/
 db.sqlite3
+node_modules/

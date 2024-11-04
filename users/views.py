@@ -1,56 +1,65 @@
-from django.shortcuts import render
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
-from.serializers import CustomUserSerializer, LoginSerializer
-from rest_framework import generics, status, permissions 
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import CustomUser
-from django.contrib.auth import logout
+from rest_framework import status, permissions
+from django.contrib.auth import login
+from .serializers import CustomUserSerializer, LoginSerializer
+from django.contrib.auth import authenticate, login
 
-# Create your views here.
-
+@ensure_csrf_cookie
 def csrfTokenView(request):
     return JsonResponse({'csrfToken': get_token(request)})
 
-class UserRegistrationView(generics.CreateAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
+class UserRegistrationView(APIView):
     permission_classes = [permissions.AllowAny]
     
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+    def post(self, request):
+        serializer = CustomUserSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # Return validation errors instead of data on failure
+            user = serializer.save()
+            login(request, user)  # Log the user in after registration
+            return Response({
+                'message': 'Registration successful',
+                'user': {
+                    'id': user.id,
+                    'email': user.email,
+                    'username': user.username
+                }
+            }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class UserLoginView(generics.GenericAPIView):
+    
+class UserLoginView(APIView):
     permission_classes = [permissions.AllowAny]
-    serializer_class = LoginSerializer
-    queryset = CustomUser.objects.all()
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data['user']
+            login(request, user)
             return Response({
-                'message': "Login sucessful!",
+                'message': "Login successful!",
                 'user': {
+                    'id': user.id,
                     'email': user.email,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
+                    'username': user.username,
+                    # 'first_name': user.first_name,
+                    # 'last_name': user.last_name,
                 },
-            }, status = status.HTTP_200_OK)
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CurrentUser(generics.GenericAPIView):
+class CurrentUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         user = request.user
         data = {
+            'id': user.id,
             'username': user.username,
             'email': user.email,
+            # 'first_name': user.first_name,
+            # 'last_name': user.last_name,
         }
         return Response(data)
