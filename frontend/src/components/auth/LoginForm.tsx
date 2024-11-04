@@ -7,7 +7,8 @@ import toast from 'react-hot-toast';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  rememberMe: z.boolean().optional(), // Add rememberMe to the schema
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -57,10 +58,29 @@ export default function LoginForm() {
         )}
       </div>
 
+      {/* Flex container for Remember Me and Forgot Password */}
+      <div className="flex justify-between items-center">
+        <div className="mx-1 flex items-center">
+          
+          <input 
+            {...register('rememberMe')}
+            type="checkbox"
+            className="mr-2 rounded form-checkbox h-4 w-4 text-red-600 rounded focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+          />
+          
+          <label htmlFor="rememberMe" className="text-sm text-gray-700">
+            Remember Me
+          </label>
+        </div>
+        <a href="/forgotPassword" className="text-sm text-red-600 hover:underline hover:text-red-500">
+          Forgot Password?
+        </a>
+      </div>
+
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 disabled:opacity-50"
+        className="w-full bg-red-600 text-white py-2 px-4 rounded-md  hover:bg-red-700 disabled:opacity-50"
       >
         {isLoading ? 'Loading...' : 'Login'}
       </button>
