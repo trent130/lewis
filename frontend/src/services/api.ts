@@ -10,19 +10,24 @@ const api = axios.create({
   }
 });
 
-// Request interceptor to add CSRF token
+let csrfToken: string | null = null;
+
 api.interceptors.request.use(async (config) => {
-  try {
-    const { data } = await axios.get('http://127.0.0.1:8000/users/get_csrf/', {
-      withCredentials: true
-    });
-    config.headers['X-CSRFToken'] = data.csrfToken;
-    return config;
-  } catch (error) {
-    toast.error('Failed to fetch CSRF token');
-    return Promise.reject(error);
+  if (!csrfToken) {
+    try {
+      const { data } = await axios.get('http://127.0.0.1:8000/users/get_csrf/', {
+        withCredentials: true,
+      });
+      csrfToken = data.csrfToken;
+    } catch (error) {
+      toast.error('Failed to fetch CSRF token');
+      return Promise.reject(error);
+    }
   }
+  config.headers['X-CSRFToken'] = csrfToken;
+  return config;
 });
+
 
 // Response interceptor for error handling
 api.interceptors.response.use(

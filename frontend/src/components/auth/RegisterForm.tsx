@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,7 +6,7 @@ import { useAuthStore } from '../../stores/authStore';
 import toast from 'react-hot-toast';
 
 const registerSchema = z.object({
-  username: z.string().min(5, 'Name must be at least 5 characters'),
+  username: z.string().min(5, 'Username must be at least 5 characters'),
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string()
@@ -18,21 +18,21 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterForm() {
-  const { register: registerUser, isLoading } = useAuthStore();
+  const { register: registerUser , isLoading } = useAuthStore();
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema)
   });
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      await registerUser({
+      await registerUser ({
         username: data.username,
         email: data.email,
         password: data.password
       });
       toast.success('Registration successful!');
     } catch (error) {
-      // Error is handled by API interceptor
+      toast.error('Registration failed. Please try again.'); // Handle registration error
     }
   };
 
@@ -40,7 +40,7 @@ export default function RegisterForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
         <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-          username
+          Username
         </label>
         <input
           {...register('username')}

@@ -11,9 +11,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-*h$^2(go-%f8wmh)90-^**5r&tgq04602$wh#-qkr5nx8s9)c('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 Logging = {
     'version': 1,
@@ -48,6 +48,11 @@ Logging = {
         },
         'lewis': {
             'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'corsheaders': {  
+            'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -88,10 +93,14 @@ CORS_ALLOWED_ORIGIN = [
     'http://127.0.0.1:4321',
 ]
 
-CORS_ALLOW_HEADERS = [
-    'content-type',
-    'authorization',
-]
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+)
 
 CORS_ALLOW_METHODS = [
     'GET',
@@ -101,12 +110,11 @@ CORS_ALLOW_METHODS = [
     'DELETE',
 ]
 
-
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8000",
+    'http://localhost:3000',
+    'http://localhost:4321',
+    'http://127.0.0.1:4321',
 ]
-
-# CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'lewis.urls'
 
@@ -140,7 +148,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 AUTH_USER_MODEL = 'users.CustomUser'
 

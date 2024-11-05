@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.contrib.auth import login
 from .serializers import CustomUserSerializer, LoginSerializer
-from django.contrib.auth import authenticate, login
 
 @ensure_csrf_cookie
 def csrfTokenView(request):
