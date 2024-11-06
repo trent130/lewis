@@ -43,6 +43,6 @@ still i  the works right now
 
 ## Contact Information
 If you have any questions or would like to get involved, please contact us at:
-- Email: contact@lewisfoundation.org
-- Website: [www.lewisfoundation.org](www.lewisfoundation.org) (TBD)
+- Email: contact@lewispaulfoundation.org
+- Website: [www.lewispaulfoundation.org](www.lewispaulfoundation.org) (TBD)
 
