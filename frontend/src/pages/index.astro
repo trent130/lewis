@@ -7,6 +7,7 @@ import Stats from '../components/Stats.astro';
 import Contact from '../components/Contact.astro';
 import { Newsletter } from '../components/Newsletter';
 import { RecentDonors } from '../components/RecentDonors';
+import { Patners } from '../components/Patners';
 ---
 
 <Layout title="Lewis Paul Foundation | Sickle Cell Awareness">
@@ -36,6 +37,7 @@ import { RecentDonors } from '../components/RecentDonors';
 			</div>
 		</div>
 		<Newsletter client:load />
+		<Patners client:load />
 	</main>
 </Layout>
 
