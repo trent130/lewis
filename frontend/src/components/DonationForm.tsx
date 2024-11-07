@@ -4,10 +4,11 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from './ui/Buttons';
 import { LoadingSpinner } from './ui/LoadingSpinner';
-import { donationService, type DonationData } from '../services/donationService';
+import { donationService } from '../services/donationService';
 import { DonationTierSelector } from './DonationTierSelector';
 import { SocialShare } from './SocialShare';
 import { DonationProgress } from './DonationProgress';
+import { Modal } from './ui/Modal';
 import toast from 'react-hot-toast';
 
 const donationSchema = z.object({
@@ -15,28 +16,27 @@ const donationSchema = z.object({
   donorName: z.string().min(2, 'Name must be at least 2 characters'),
   donorEmail: z.string().email('Invalid email address'),
   message: z.string().optional(),
+  isMonthly: z.boolean().default(false),
+  isAnonymous: z.boolean().default(false)
 });
 
 type DonationFormData = z.infer<typeof donationSchema>;
 
 export default function DonationForm() {
-    const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const { 
-      register, 
-      handleSubmit, 
-      formState: { errors }, 
-      setValue, 
-      watch,
-      reset  // Add reset here
-    } = useForm<DonationFormData>({
-      resolver: zodResolver(donationSchema),
-      defaultValues: {
-        amount: 25
-      }
-    });
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [showConfirmation, setShowConfirmation] = React.useState(false);
   
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<DonationFormData>({
+    resolver: zodResolver(donationSchema),
+    defaultValues: {
+      amount: 25,
+      isMonthly: false,
+      isAnonymous: false
+    }
+  });
 
   const currentAmount = watch('amount');
+  const isMonthly = watch('isMonthly');
 
   const handleTierSelect = (amount: number) => {
     setValue('amount', amount, { shouldValidate: true });
@@ -49,11 +49,7 @@ export default function DonationForm() {
         ...data,
         currency: 'USD'
       });
-      toast.success('Thank you for your donation!');
-      // Reset form but keep the amount
-      const amount = data.amount;
-      reset();
-      setValue('amount', amount);
+      setShowConfirmation(true);
     } catch (error) {
       toast.error('Failed to process donation. Please try again.');
     } finally {
@@ -72,9 +68,32 @@ export default function DonationForm() {
       <DonationTierSelector 
         selectedAmount={currentAmount}
         onSelect={handleTierSelect}
+        isMonthly={isMonthly}
       />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div>
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              {...register('isMonthly')}
+              className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+            />
+            <span className="text-sm text-gray-700">Make this a monthly donation</span>
+          </label>
+        </div>
+
+        <div>
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              {...register('isAnonymous')}
+              className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+            />
+            <span className="text-sm text-gray-700">Make this donation anonymous</span>
+          </label>
+        </div>
+
         <div>
           <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
             Donation Amount (USD)
@@ -133,9 +152,6 @@ export default function DonationForm() {
             rows={4}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
           />
-          {errors.message && (
-            <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>
-          )}
         </div>
 
         <Button type="submit" disabled={isSubmitting} fullWidth>
@@ -145,10 +161,20 @@ export default function DonationForm() {
               Processing...
             </div>
           ) : (
-            'Make Donation'
+            `${isMonthly ? 'Start Monthly Donation' : 'Make Donation'}`
           )}
         </Button>
       </form>
+
+      <Modal open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <div className="text-center">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Thank You!</h3>
+          <p className="text-sm text-gray-500 mb-6">
+            Your donation will help make a difference in the lives of those affected by sickle cell disease.
+          </p>
+          <Button onClick={() => setShowConfirmation(false)}>Close</Button>
+        </div>
+      </Modal>
 
       <div className="pt-6 border-t border-gray-200">
         <SocialShare 

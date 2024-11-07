@@ -1,0 +1,58 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { blogService } from '../../services/blogService';
+import { SocialShare } from '../../components/SocialShare';
+
+const { slug } = Astro.params;
+const post = await blogService.getPost(slug);
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+---
+
+<Layout title={`${post.title} | Lewis Paul Foundation`}>
+  <main class="min-h-screen bg-gray-50 pt-24 pb-12">
+    <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">{post.title}</h1>
+        <div class="flex items-center space-x-4">
+          <img 
+            src={post.author.avatar} 
+            alt={post.author.name}
+            class="w-12 h-12 rounded-full"
+          />
+          <div>
+            <p class="text-sm font-medium text-gray-900">{post.author.name}</p>
+            <div class="flex space-x-1 text-sm text-gray-500">
+              <time datetime={post.publishedAt}>
+                {new Date(post.publishedAt).toLocaleDateString()}
+              </time>
+              <span aria-hidden="true">&middot;</span>
+              <span>{post.readTime} min read</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <img 
+        src={post.coverImage} 
+        alt="" 
+        class="w-full h-64 md:h-96 object-cover rounded-lg mb-8"
+      />
+
+      <div class="prose prose-red max-w-none">
+        {post.content}
+      </div>
+
+      <footer class="mt-12 pt-6 border-t border-gray-200">
+        <SocialShare 
+          client:load
+          url={Astro.url.href}
+          title={post.title}
+          description={post.excerpt}
+        />
+      </footer>
+    </article>
+  </main>
+</Layout>

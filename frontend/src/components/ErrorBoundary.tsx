@@ -1,46 +1,46 @@
-import React from 'react';
-import { cn } from '../utils/cn';
-
-interface DonationTier {
-  amount: number;
-  label: string;
-  description: string;
-}
-
-const tiers: DonationTier[] = [
-  { amount: 25, label: 'Friend', description: 'Support educational programs' },
-  { amount: 100, label: 'Advocate', description: 'Fund research initiatives' },
-  { amount: 500, label: 'Champion', description: 'Make a lasting impact' },
-];
+import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 
 interface Props {
-  selectedAmount: number;
-  onSelect: (amount: number) => void;
+  children: ReactNode;
+  fallback?: ReactNode;
 }
 
-export function DonationTierSelector({ selectedAmount, onSelect }: Props) {
-  return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      {tiers.map((tier) => (
-        <button
-          key={tier.amount}
-          type="button"
-          onClick={() => onSelect(tier.amount)}
-          className={cn(
-            'relative rounded-lg p-4 cursor-pointer focus:outline-none',
-            'border-2 transition-colors duration-200',
-            selectedAmount === tier.amount
-              ? 'border-red-600 bg-red-50'
-              : 'border-gray-300 hover:border-red-300'
-          )}
-        >
-          <div className="flex flex-col text-left">
-            <span className="text-lg font-semibold text-gray-900">{tier.label}</span>
-            <span className="mt-1 text-2xl font-bold text-red-600">${tier.amount}</span>
-            <span className="mt-2 text-sm text-gray-500">{tier.description}</span>
+interface State {
+  hasError: boolean;
+  error?: Error;
+}
+
+export class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false
+  };
+
+  public static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
+  }
+
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Uncaught error:', error, errorInfo);
+  }
+
+  public render() {
+    if (this.state.hasError) {
+      return this.props.fallback || (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h2>
+            <p className="text-gray-600 mb-4">We apologize for the inconvenience</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+            >
+              Refresh Page
+            </button>
           </div>
-        </button>
-      ))}
-    </div>
-  );
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
 }

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import DonationForm from '../components/DonationForm';
+import { RecentDonors } from '../components/RecentDonors';
 
 const donationTiers = [
   {
@@ -32,45 +33,38 @@ const donationTiers = [
 
     <section class="donation-content">
       <div class="container">
-        <div class="impact-section">
-          <h2>Your Impact</h2>
-          <div class="impact-grid">
-            <div class="impact-card">
-              <h3>Medical Support</h3>
-              <p>Help provide medical assistance and treatment support for sickle cell warriors.</p>
-            </div>
-            <div class="impact-card">
-              <h3>Research</h3>
-              <p>Fund critical research initiatives to improve treatments and find better solutions.</p>
-            </div>
-            <div class="impact-card">
-              <h3>Education</h3>
-              <p>Support awareness programs and educational resources for communities.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="donation-tiers">
-          <h2>Ways to Give</h2>
-          <div class="tier-grid">
-            {donationTiers.map(tier => (
-              <div class="tier-card">
-                <h3>{tier.name}</h3>
-                <div class="amount">${tier.amount}</div>
-                <ul>
-                  {tier.benefits.map(benefit => (
-                    <li>{benefit}</li>
-                  ))}
-                </ul>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="md:col-span-2">
+            <div class="impact-section">
+              <h2>Your Impact</h2>
+              <div class="impact-grid">
+                <div class="impact-card">
+                  <h3>Medical Support</h3>
+                  <p>Help provide medical assistance and treatment support for sickle cell warriors.</p>
+                </div>
+                <div class="impact-card">
+                  <h3>Research</h3>
+                  <p>Fund critical research initiatives to improve treatments and find better solutions.</p>
+                </div>
+                <div class="impact-card">
+                  <h3>Education</h3>
+                  <p>Support awareness programs and educational resources for communities.</p>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        <div class="donation-form-section">
-          <h2>Make Your Donation</h2>
-          <div class="form-container">
-            <DonationForm client:load />
+            <div class="donation-form-section">
+              <h2>Make Your Donation</h2>
+              <div class="form-container">
+                <DonationForm client:load />
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="sticky top-24">
+              <RecentDonors client:load />
+            </div>
           </div>
         </div>
       </div>
@@ -146,46 +140,8 @@ const donationTiers = [
     margin-bottom: 1rem;
   }
 
-  .tier-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-bottom: 4rem;
-  }
-
-  .tier-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-
-  .tier-card h3 {
-    color: #2d3748;
-    margin-bottom: 1rem;
-  }
-
-  .amount {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #e53e3e;
-    margin-bottom: 1.5rem;
-  }
-
-  .tier-card ul {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 2rem;
-  }
-
-  .tier-card li {
-    margin-bottom: 0.5rem;
-    color: #4a5568;
-  }
-
   .donation-form-section {
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
   }
 

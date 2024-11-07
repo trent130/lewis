@@ -1,8 +1,10 @@
 ---
+import ThemeToggler from '../components/ThemeToggle';
 import { Toaster } from 'react-hot-toast';
 import Navigation from '../components/Navigation';
 import AuthProvider from '../components/auth/AuthProvider';
-import ThemeToggler from '../components/ThemeToggle';
+import { QueryProvider } from '../components/providers/QueryProvider';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 
 interface Props {
 	title: string;
@@ -12,23 +14,27 @@ const { title } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" class="">
+<html lang="en" class="dark">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content="Lewis Paul Foundation - Supporting Sickle Cell Warriors & Their Families" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 	</head>
-	<body>
-		<AuthProvider client:load>
-			<Navigation client:load />
-			<Toaster position="top-right" />
-			<ThemeToggler client:load /> <!-- Theme toggler applies class based on user preference -->
-			<slot />
-		</AuthProvider>
+	<body class="dark:bg-gray-900 dark:text-gray-100">
+		<ErrorBoundary>
+			<QueryProvider client:load>
+				<AuthProvider client:load>
+					<Navigation client:load />
+					<Toaster position="top-right" />
+					<ThemeToggler client:load /> <!-- Theme toggler applies class based on user preference -->
+					<slot />
+				</AuthProvider>
+			</QueryProvider>
+		</ErrorBoundary>
 	</body>
 </html>
 
@@ -39,9 +45,10 @@ const { title } = Astro.props;
 		--bg-color: #ffffff;
 	}
 
-	.dark {
-		--bg-color: #121212;
-		--text-color: #e2e8f0;
+	:root.dark {
+		--primary-color: #f56565;
+		--text-color: #f7fafc;
+		--bg-color: #1a202c;
 	}
 
 	* {
@@ -56,6 +63,11 @@ const { title } = Astro.props;
 	}
 
 	body {
+		background: var(--bg-color);
+		color: var(--text-color);
+	}
+
+	.dark body {
 		background: var(--bg-color);
 		color: var(--text-color);
 	}

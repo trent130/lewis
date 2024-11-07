@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { BlogCard } from '../components/blog/BlogCard';
+import { BlogSearch } from '../components/blog/BlogSearch';
+import { BlogFilter } from '../components/blog/BlogFilter';
+import { blogService } from '../services/blogService';
+
+const posts = await blogService.getPosts();
+const categories = await blogService.getCategories();
+---
+
+<Layout title="Blog | Lewis Paul Foundation">
+  <main class="min-h-screen bg-gray-50 pt-24 pb-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900">Latest Updates</h1>
+        <p class="mt-4 text-xl text-gray-600">Stay informed about our mission and impact</p>
+      </div>
+
+      <div class="flex flex-col lg:flex-row gap-8">
+        <div class="lg:w-64 flex-shrink-0 space-y-6">
+          <BlogSearch client:load onSearch={(query) => console.log(query)} />
+          <BlogFilter
+            client:load
+            categories={categories}
+            selectedCategories={[]}
+            onCategoryChange={(categoryId) => console.log(categoryId)}
+          />
+        </div>
+
+        <div class="flex-1">
+          <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
+            {posts.map((post) => (
+              <BlogCard post={post} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>

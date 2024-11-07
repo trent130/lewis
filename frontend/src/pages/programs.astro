@@ -47,27 +47,37 @@ const programs = [
 
 <Layout title="Our Programs | Lewis Paul Foundation">
     <main>
-        <section class="programs-hero">
-            <div class="hero-content">
-                <h1>Our Programs</h1>
-                <p class="tagline">Making a Difference in the Sickle Cell Community</p>
+        <section class="hero-section relative h-[60vh] flex items-center justify-center">
+            <div class="absolute inset-0 bg-black/60 z-10"></div>
+            <div class="relative z-20 text-center px-4 max-w-4xl mx-auto">
+                <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                    Our Programs
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-200">
+                    Making a Difference in the Sickle Cell Community
+                </p>
             </div>
         </section>
 
-        <section class="programs-content">
-            <div class="container">
-                {programs.map((program, index) => (
-                    <div class="program-card">
-                        <div class="program-info">
-                            <h2>{program.title}</h2>
-                            <p class="description">{program.description}</p>
-                            <ul class="features">
-                                {program.features.map(feature => (
-                                    <li>{feature}</li>
-                                ))}
-                            </ul>
-                            <a href="/contact" class="learn-more">Get Involved →</a>
-                        </div>
+        <section class="max-w-7xl mx-auto px-4 py-16">
+            <div class="grid md:grid-cols-2 gap-8 -mt-32 relative z-30">
+                 {programs.map((program, index) => (
+                    <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10 hover:shadow-2xl transition-shadow duration-300">
+                        <h2 class="text-2xl md:text-3xl font-bold text-purple-600 mb-4">{program.title}</h2>
+                        <p class="text-gray-700 mb-6 leading-relaxed">{program.description}</p>
+                        <ul class="space-y-2 mb-8">
+                            {program.features.map(feature => (
+                                <li class="flex items-center text-gray-700">
+                                    <svg class="w-5 h-5 mr-2 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    {feature}
+                                </li>
+                            ))}
+                        </ul>
+                        <a href="/contact" class="inline-block bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors duration-300">
+                            Get Involved →
+                        </a>
                     </div>
                 ))}
             </div>
@@ -76,30 +86,19 @@ const programs = [
 </Layout>
 
 <style>
-    .programs-hero {
-        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/programs-hero.jpg');
-        background-size: cover;
-        background-position: center;
-        height: 50vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        color: white;
-        margin-top: 64px;
-    }
+    .hero-bio {
+		background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lewis-hero.jpg');
+		background-size: cover;
+		background-position: center;
+		height: 60vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		color: white;
+	}
 
-    .hero-content {
-        max-width: 800px;
-        padding: 2rem;
-    }
-
-    .hero-content h1 {
-        font-size: 3.5rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-    }
-
+   
     .tagline {
         font-size: 1.5rem;
     }
