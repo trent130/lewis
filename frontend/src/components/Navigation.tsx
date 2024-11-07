@@ -275,6 +275,46 @@ export default function Navigation() {
           </div>
         </div>
       </div>
+
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="block px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md"
+              >
+                {link.label}
+              </a>
+            ))}
+
+            {isAuthenticated ? (
+              <Button onClick={handleLogout} variant="outline" fullWidth>
+                Logout
+              </Button>
+            ) : (
+              <div className="space-y-2">
+                <Button
+                  onClick={() => (window.location.href = "/login")}
+                  variant="ghost"
+                  fullWidth
+                >
+                  Login
+                </Button>
+                <Button
+                  onClick={() => (window.location.href = "/register")}
+                  variant="default"
+                  fullWidth
+                >
+                  Register
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
