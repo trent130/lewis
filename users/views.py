@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.contrib.auth import login
 from .serializers import CustomUserSerializer, LoginSerializer
+from django.utils.decorators import method_decorator
 
 @ensure_csrf_cookie
 def csrfTokenView(request):
@@ -29,6 +30,7 @@ class UserRegistrationView(APIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class UserLoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -37,18 +39,37 @@ class UserLoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             login(request, user)
-            return Response({
+            
+            # Debug session information
+            print("Session ID:", request.session.session_key)
+            print("Session Data:", dict(request.session))
+            print("Is user authenticated?", request.user.is_authenticated)
+            
+            response = Response({
                 'message': "Login successful!",
                 'user': {
                     'id': user.id,
                     'email': user.email,
                     'username': user.username,
-                    # 'first_name': user.first_name,
-                    # 'last_name': user.last_name,
-                },
+                }
             }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Set session cookie
+            response.set_cookie(
+                key='sessionid',
+                value=request.session.session_key,
+                httponly=True,
+                samesite='Lax',
+                secure=True,  # Set to True in production with HTTPS
+                max_age=1209600  # 2 weeks in seconds
+            )
 
+            # Debug response cookies
+            print("Response Cookies:", response.cookies.items())
+            
+            return response
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 class CurrentUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

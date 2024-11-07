@@ -1,60 +1,89 @@
 // stores/authStore.ts
 import { create } from 'zustand';
 import { authApi } from '../services/api';
-import toast from 'react-hot-toast';
+
+interface User {
+  id: number;
+  email: string;
+  username: string;
+}
+
+interface LoginData {
+  email: string;
+  password: string;
+  rememberMe?: boolean;
+}
+
+interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+}
 
 interface AuthState {
-  user: any | null;
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: { email: string; password: string }) => Promise<void>;
-  register: (userData: { email: string; password: string; username: string }) => Promise<void>;
+  login: (data: LoginData) => Promise<void>; // Updated to accept single object
   logout: () => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  checkAuth: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
-  
-  login: async (credentials) => {
+
+  login: async (data: LoginData) => { // Updated to accept single object
     set({ isLoading: true });
     try {
-      const data = await authApi.login(credentials);
-      set({ user: data.user, isAuthenticated: true });
-      toast.success('Logged in successfully');
+      const response = await authApi.login(data);
+      set({ user: response.user, isAuthenticated: true });
     } catch (error) {
-      console.error("Login failed:", error);
-      set({ user: null, isAuthenticated: false });
+      console.error('Login failed:', error);
+      throw error;
     } finally {
       set({ isLoading: false });
     }
   },
-  
-  register: async (userData) => {
+
+  register: async (data: RegisterData) => {
     set({ isLoading: true });
     try {
-      const data = await authApi.register(userData);
-      set({ user: data.user, isAuthenticated: true });
-      toast.success('Registered successfully');
+      const response = await authApi.register(data);
+      set({ user: response.user, isAuthenticated: true });
     } catch (error) {
-      console.error("Registration failed:", error);
-      set({ user: null, isAuthenticated: false });
+      console.error('Registration failed:', error);
+      throw error;
     } finally {
       set({ isLoading: false });
     }
   },
-  
+
   logout: async () => {
     set({ isLoading: true });
     try {
       await authApi.logout();
       set({ user: null, isAuthenticated: false });
-      toast.success('Logged out successfully');
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error('Logout failed:', error);
+      throw error;
     } finally {
       set({ isLoading: false });
     }
-  }
+  },
+
+  checkAuth: async () => {
+    set({ isLoading: true });
+    try {
+      const user = await authApi.getCurrentUser();
+      set({ user, isAuthenticated: true });
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      set({ user: null, isAuthenticated: false });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 }));

@@ -232,7 +232,7 @@ export default function Navigation() {
               {isAuthenticated ? (
                 <>
                   <span className="text-sm text-gray-700 dark:text-gray-200">
-                    Welcome, {user?.name}
+                    Welcome, {user?.username}
                   </span>
                   <Button onClick={handleLogout} variant="outline" size="sm">
                     Logout
@@ -247,7 +247,6 @@ export default function Navigation() {
                   >
                     Login
                   </Button>
-
                   <Button
                     onClick={() => (window.location.href = "/register")}
                     variant="default"
