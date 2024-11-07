@@ -17,13 +17,13 @@ const Wrapper = styled.div`
     height: 0;
   }
 
-  /* The slider */
+  /* Slider base style */
   .slider {
     position: absolute;
     cursor: pointer;
     inset: 0;
-    border: 2px solid #414141;
     border-radius: 50px;
+    border: 2px solid #414141;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
@@ -35,8 +35,8 @@ const Wrapper = styled.div`
     left: 0.2em;
     bottom: 0.2em;
     background-color: white;
-    border-radius: inherit;
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+    border-radius: 50%;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   /* Light theme styles */
@@ -71,38 +71,33 @@ const Wrapper = styled.div`
 `;
 
 const ThemeToggler: React.FC = () => {
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("theme") as 'light' | 'dark') || "light";
-    }
-    return 'light';
-  });
-
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("theme", newTheme);
-      document.documentElement.classList.toggle("dark", newTheme === "dark");
-      document.documentElement.classList.toggle("light", newTheme === "light");
-    }
-  };
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      document.documentElement.classList.toggle("dark", theme === "dark");
-      document.documentElement.classList.toggle("light", theme === "light");
-    }
-  }, [theme]);
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' || 'dark';
+    setTheme(savedTheme);
+    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    document.documentElement.classList.toggle('light', savedTheme === 'light');
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    document.documentElement.classList.toggle('light', newTheme === 'light');
+  };
+
+  if (theme === null) return null; // or a loading indicator
 
   return (
     <Wrapper>
       <div className="toggle-switch">
-        <label className="switch">
+        <label className="switch" aria-label="Toggle Dark Mode">
           <input
             type="checkbox"
             className="checkbox"
-            checked={theme === "dark"}
+            checked={theme === 'dark'}
             onChange={toggleTheme}
           />
           <span className={`slider ${theme}`} />

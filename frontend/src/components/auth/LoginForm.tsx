@@ -35,6 +35,7 @@ export default function LoginForm() {
         localStorage.removeItem('rememberedEmail');
       }
       toast.success('Login successful!');
+      window.location.href = ('/'); // Redirect to home page or any desired route
     } catch (error) {
       toast.error('Login failed. Please check your credentials.');
     }

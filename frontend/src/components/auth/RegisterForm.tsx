@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuthStore } from '../../stores/authStore';
 import toast from 'react-hot-toast';
+
 
 const registerSchema = z.object({
   username: z.string().min(5, 'Username must be at least 5 characters'),
@@ -18,21 +19,22 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterForm() {
-  const { register: registerUser , isLoading } = useAuthStore();
+  const { register: registerUser, isLoading } = useAuthStore();
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema)
   });
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      await registerUser ({
+      await registerUser({
         username: data.username,
         email: data.email,
         password: data.password
       });
       toast.success('Registration successful!');
+      window.location.href = '/';
     } catch (error) {
-      toast.error('Registration failed. Please try again.'); // Handle registration error
+      toast.error('Registration failed. Please try again.');
     }
   };
 
@@ -102,5 +104,7 @@ export default function RegisterForm() {
         {isLoading ? 'Loading...' : 'Register'}
       </button>
     </form>
+    
   );
+
 }

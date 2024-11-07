@@ -8,9 +8,6 @@ from django.http import HttpResponseRedirect
 from .models import Chat, Memorial, Donation
 
 # Create your views here.
-def home(request):
-    return render(request, 'foundation/home.html')
-
 @login_required
 def chat(request):
     pass
