@@ -8,30 +8,38 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 
 interface Props {
 	title: string;
+	description?: string;
 }
 
-const { title } = Astro.props;
+const { title, description = "Lewis Paul Foundation - Supporting Sickle Cell Warriors & Their Families" } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en" class="dark">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content="Lewis Paul Foundation - Supporting Sickle Cell Warriors & Their Families" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+		<noscript>
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+		</noscript>
 	</head>
-	<body class="">
+	<body>
 		<ErrorBoundary>
 			<QueryProvider client:load>
 				<AuthProvider client:load>
 					<Navigation client:load />
 					<Toaster position="top-right" />
-					<ThemeToggler client:load /> <!-- Theme toggler applies class based on user preference -->
-					<slot />
+					<ThemeToggler client:load />
+					<main>
+						<slot />
+					</main>
 				</AuthProvider>
 			</QueryProvider>
 		</ErrorBoundary>
@@ -65,10 +73,12 @@ const { title } = Astro.props;
 	body {
 		background: var(--bg-color);
 		color: var(--text-color);
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
 	}
 
-	.dark body {
-		background: var(--bg-color);
-		color: var(--text-color);
+	main {
+		flex: 1;
 	}
 </style>

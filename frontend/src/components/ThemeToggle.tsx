@@ -69,23 +69,30 @@ const Wrapper = styled.div`
     transform: translateX(1.5em);
   }
 `;
-
 const ThemeToggler: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' || 'dark';
-    setTheme(savedTheme);
-    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    document.documentElement.classList.toggle('light', savedTheme === 'light');
+    // Check if `localStorage` is accessible (only in the browser)
+    if (typeof window !== "undefined") {
+      const savedTheme = (localStorage.getItem('theme') as 'light' | 'dark') || 'dark';
+      setTheme(savedTheme);
+      document.documentElement.classList.add(savedTheme);
+    }
   }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-    document.documentElement.classList.toggle('light', newTheme === 'light');
+
+    // Only set in `localStorage` if we're in the browser
+    if (typeof window !== "undefined") {
+      localStorage.setItem('theme', newTheme);
+    }
+
+    // Update the document class directly
+    document.documentElement.classList.remove(theme);
+    document.documentElement.classList.add(newTheme);
   };
 
   if (theme === null) return null; // or a loading indicator

@@ -86,6 +86,7 @@ export const authApi = {
     try {
       const { data } = await api.post('/users/login/', credentials);
       // After successful login, fetch CSRF token again
+      
       await fetchCSRFToken();
       return data;
     } catch (error) {
