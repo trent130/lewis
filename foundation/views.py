@@ -26,19 +26,19 @@ def chat(request):
     # context = {'form': form, }
     # return render(request, 'foundation/chat.html', context)
 
-def chatview(request):
-    chats = Chat.objects.all()
-    return render(request, 'foundation/chatview.html', {'chats':chats})
+# def chatview(request):
+#     chats = Chat.objects.all()
+#     return render(request, 'foundation/chatview.html', {'chats':chats})
 
-def home(request):
-    return render(request, 'foundation/home.html')
+# def home(request):
+#     return render(request, 'foundation/home.html')
 
-def memorial(request):
-    memorial_entries = Memorial.objects.all()
-    return render(request, 'foundation/memorial.html', {'memorial_entries': memorial_entries})
+# def memorial(request):
+#     memorial_entries = Memorial.objects.all()
+#     return render(request, 'foundation/memorial.html', {'memorial_entries': memorial_entries})
 
-def donate(request):
-    if request.method == 'POST':
-        # Handle donation form submission
-        pass
-    return render(request, 'foundation/donate.html')
+# def donate(request):
+#     if request.method == 'POST':
+#         # Handle donation form submission
+#         pass
+#     return render(request, 'foundation/donate.html')

@@ -10,17 +10,34 @@ const api = axios.create({
 });
 
 let csrfToken: string | null = null;
+let csrfPromise: Promise<string> | null = null;
 
-// Function to get CSRF token - Use the configured api instance
-const fetchCSRFToken = async () => {
-  try {
-    const { data } = await api.get('/users/get_csrf/');  // Use api instead of axios
-    csrfToken = data.csrfToken;
-    return csrfToken;
-  } catch (error) {
-    console.error('Failed to fetch CSRF token:', error);
-    throw error;
-  }
+const fetchCSRFToken = async (): Promise<string> => {
+  // If we already have a token, return it immediately
+  if (csrfToken) return csrfToken;
+
+  // If a promise is already in progress, return that promise
+  if (csrfPromise) return csrfPromise;
+
+  // Create a new promise to fetch the CSRF token
+  csrfPromise = new Promise<string>(async (resolve, reject) => {
+    try {
+      const { data } = await api.get('/users/get_csrf/');
+      csrfToken = data.csrfToken;
+
+      // Ensure that csrfToken is not null before resolving
+      if (csrfToken) {
+        resolve(csrfToken);
+      } else {
+        reject(new Error("CSRF token is null")); // Handle the case where the token is null
+      }
+    } catch (error) {
+      csrfPromise = null;
+      reject(error);
+    }
+  });
+
+  return csrfPromise;
 };
 
 // Add debug interceptors to track requests and responses
