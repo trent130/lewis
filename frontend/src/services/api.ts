@@ -2,7 +2,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: 'https://miniature-train-6w6gqvxrq4v3wqg-8000.app.github.dev/',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -13,10 +13,10 @@ let csrfToken: string | null = null;
 let csrfPromise: Promise<string> | null = null;
 
 const fetchCSRFToken = async (): Promise<string> => {
-  // If we already have a token, return it immediately
+  // If we already have a CSRF token, return it immediately
   if (csrfToken) return csrfToken;
 
-  // If a promise is already in progress, return that promise
+  // If a promise to fetch the CSRF token is already in progress, return that promise
   if (csrfPromise) return csrfPromise;
 
   // Create a new promise to fetch the CSRF token
@@ -29,16 +29,18 @@ const fetchCSRFToken = async (): Promise<string> => {
       if (csrfToken) {
         resolve(csrfToken);
       } else {
-        reject(new Error("CSRF token is null")); // Handle the case where the token is null
+        reject(new Error("CSRF token is null")); // Handle case where token is null
       }
     } catch (error) {
-      csrfPromise = null;
+      csrfPromise = null; // Reset promise on error for future attempts
       reject(error);
     }
   });
 
+  // Return the csrfPromise
   return csrfPromise;
 };
+
 
 // Add debug interceptors to track requests and responses
 api.interceptors.request.use(
