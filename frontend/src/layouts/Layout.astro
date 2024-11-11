@@ -5,6 +5,7 @@ import Navigation from '../components/Navigation';
 import AuthProvider from '../components/auth/AuthProvider';
 import { QueryProvider } from '../components/providers/QueryProvider';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import  Footer from '../components/Footer';
 
 interface Props {
 	title: string;
@@ -40,6 +41,7 @@ const { title, description = "Lewis Paul Foundation - Supporting Sickle Cell War
 					<main>
 						<slot />
 					</main>
+					<Footer client:load/>
 				</AuthProvider>
 			</QueryProvider>
 		</ErrorBoundary>

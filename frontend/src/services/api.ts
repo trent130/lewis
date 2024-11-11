@@ -2,7 +2,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const api = axios.create({
-  baseURL: 'https://miniature-train-6w6gqvxrq4v3wqg-8000.app.github.dev/',
+  // baseURL: 'https://miniature-train-6w6gqvxrq4v3wqg-8000.app.github.dev/',
+  baseURL: 'http://127.0.0.1:8000',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -69,7 +70,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     // Debug log
-    console.log('Response:', {
+      console.log('Response:', {
       url: response.config.url,
       status: response.status,
       headers: response.headers,
@@ -111,8 +112,10 @@ export const authApi = {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('Login error:', error.response?.data);
+        toast.error('Login failed: ' + (error.response?.data?.message || 'Unknown error'));
       } else {
         console.error('Unexpected login error:', error);
+        toast.error('An unexpected error occurred');
       }
       throw error;
     }

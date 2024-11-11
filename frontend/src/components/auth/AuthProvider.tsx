@@ -13,7 +13,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     // Check authentication status on mount
     const checkAuth = async () => {
       try {
-        const { data } = await api.get('/api/auth/me/');
+        const { data } = await api.get('/users/me/');
+        console.log('User  data:', data); 
         if (data.user) {
           useAuthStore.setState({ 
             user: data.user, 
@@ -21,6 +22,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
           });
         }
       } catch (error) {
+        console.error('Authentication check failed:', error); 
         useAuthStore.setState({ 
           user: null, 
           isAuthenticated: false 

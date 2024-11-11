@@ -9,31 +9,41 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626',
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#7f1d1d',
-          950: '#450a0a',
+          50: '#f9fafb',
+          100: '#f3f4f6',
+          200: '#e5e7eb',
+          300: '#d1d5db',
+          400: '#9ca3af',
+          500: '#6b7280',
+          600: '#4b5563',
+          700: '#374151',
+          800: '#1f2937',
+          900: '#111827',
+          950: '#0a0a0a',
         },
 
+        // Dark theme colors
         dark: {
-          bg: '#121212',
-          surface: '#1E1E1E',
-          primary: '#2563EB',
-          secondary: '#4B5563',
+          bg: '#000000',
+          surface: '#1a1a1a',
+          primary: '#ffffff',
+          secondary: '#a3a3a3',
+          accent: '#737373', // Optional accent
         },
+
+        // Light theme colors
         light: {
-          bg: '#F3F4F6',
-          surface: '#FFFFFF',
-          primary: '#2563EB',
-          secondary: '#6B7280',
+          bg: '#ffffff',
+          surface: '#f5f5f5',
+          primary: '#000000',
+          secondary: '#737373',
+          accent: '#4b4b4b', // Optional accent
         },
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        serif: ['Merriweather', 'serif'],
+        mono: ['Menlo', 'monospace'],
       },
     },
   },

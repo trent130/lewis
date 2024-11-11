@@ -156,6 +156,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'lewis.wsgi.application'
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Database
