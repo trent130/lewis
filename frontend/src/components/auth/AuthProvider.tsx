@@ -1,39 +1,34 @@
 import React, { useEffect } from 'react';
 import { useAuthStore } from '../../stores/authStore';
-import api from '../../services/api';
+import toast from 'react-hot-toast';
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  const { user, isAuthenticated } = useAuthStore();
+  const { isAuthenticated, checkAuth } = useAuthStore();
 
   useEffect(() => {
     // Check authentication status on mount
-    const checkAuth = async () => {
+    const authenticateUser  = async () => {
       try {
-        const { data } = await api.get('/users/me/');
-        console.log('User  data:', data); 
-        if (data.user) {
-          useAuthStore.setState({ 
-            user: data.user, 
-            isAuthenticated: true 
-          });
+        const isAuthenticated = await checkAuth(); // Use the checkAuth method from the store
+        if (isAuthenticated) {
+          // Optionally, you can log the user data here if needed
+          // const user = useAuthStore.getState().user; // Get the user from the store
+          // console.log('User  data:', user);
         }
       } catch (error) {
-        console.error('Authentication check failed:', error); 
-        useAuthStore.setState({ 
-          user: null, 
-          isAuthenticated: false 
-        });
+        console.error('Authentication check failed:', error);
+        toast.error('Failed to authenticate user.'); // Provide feedback to the user
       }
     };
 
     if (!isAuthenticated) {
-      checkAuth();
+      authenticateUser ();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, checkAuth]); // Include checkAuth in the dependency array
 
   return <>{children}</>;
 }

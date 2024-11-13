@@ -26,6 +26,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  sessionId: string | null; // Add sessionId to the state
   login: (data: LoginData) => Promise<boolean>;
   logout: () => Promise<void>;
   register: (data: RegisterData) => Promise<boolean>;
@@ -40,26 +41,30 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      sessionId: null, // Initialize sessionId
 
       login: async (data: LoginData) => {
         set({ isLoading: true, error: null });
         try {
           const response = await authApi.login(data);
-          set({ 
-            user: response.user, 
+          set({
+            user: response.user, // Ensure response.user is of type User
             isAuthenticated: true,
+            sessionId: response.sessionId,
             isLoading: false,
-            error: null 
+            error: null
           });
+          localStorage.setItem('sessionId', response.sessionId);
+          console.log(response.sessionId)
           toast.success('Login successful');
           return true;
         } catch (error: any) {
           const errorMessage = error.response?.data?.message || 'Login failed';
-          set({ 
-            user: null, 
-            isAuthenticated: false, 
-            isLoading: false, 
-            error: errorMessage 
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: errorMessage
           });
           toast.error(errorMessage);
           return false;
@@ -70,21 +75,22 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const response = await authApi.register(data);
-          set({ 
-            user: response.user, 
+          set({
+            user: response.user, // Ensure response.user is of type User
             isAuthenticated: true,
             isLoading: false,
-            error: null 
+            error: null
           });
+          localStorage.setItem('sessionId', response.sessionId);
           toast.success('Registration successful');
           return true;
         } catch (error: any) {
           const errorMessage = error.response?.data?.message || 'Registration failed';
-          set({ 
-            user: null, 
-            isAuthenticated: false, 
-            isLoading: false, 
-            error: errorMessage 
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: errorMessage
           });
           toast.error(errorMessage);
           return false;
@@ -95,18 +101,20 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           await authApi.logout();
-          set({ 
-            user: null, 
+          set({
+            user: null,
             isAuthenticated: false,
+            sessionId: null,
             isLoading: false,
-            error: null 
+            error: null
           });
+          localStorage.removeItem('sessionId');
           toast.success('Logged out successfully');
         } catch (error: any) {
           const errorMessage = error.response?.data?.message || 'Logout failed';
-          set({ 
-            isLoading: false, 
-            error: errorMessage 
+          set({
+            isLoading: false,
+            error: errorMessage
           });
           toast.error(errorMessage);
         }
@@ -114,21 +122,33 @@ export const useAuthStore = create<AuthState>()(
 
       checkAuth: async () => {
         set({ isLoading: true, error: null });
-        try {
-          const user = await authApi.getCurrentUser();
-          set({ 
-            user, 
-            isAuthenticated: true,
-            isLoading: false,
-            error: null 
-          });
-          return true;
-        } catch (error) {
-          set({ 
-            user: null, 
+        const sessionId = localStorage.getItem('sessionId');
+        if (sessionId) {
+          try {
+            const user = await authApi.getCurrent(); // Ensure this matches your API method
+            set({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null
+            });
+            return true;
+          } catch (error) {
+            set({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+              error: 'Authentication failed'
+            });
+            localStorage.removeItem('sessionId'); // Clear session ID if failed
+            return false;
+          }
+        } else {
+          set({
+            user: null,
             isAuthenticated: false,
             isLoading: false,
-            error: 'Authentication failed' 
+            error: null
           });
           return false;
         }
@@ -140,7 +160,8 @@ export const useAuthStore = create<AuthState>()(
       name: 'auth-storage', // name of the item in storage
       partialize: (state) => ({
         user: state.user,
-        isAuthenticated: state.isAuthenticated
+        isAuthenticated: state.isAuthenticated,
+        sessionId: state.sessionId
       })
     }
   )

@@ -13,7 +13,15 @@ SECRET_KEY = 'django-insecure-*h$^2(go-%f8wmh)90-^**5r&tgq04602$wh#-qkr5nx8s9)c(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'http://localhost:3000',
+    'http://localhost:4321',
+    'http://127.0.0.1:4321',
+    'https://miniature-train-6w6gqvxrq4v3wqg-4321.app.github.dev',
+    'https://84fe-102-210-40-102.ngrok-free.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
 Logging = {
     'version': 1,
@@ -91,7 +99,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:4321',
     'http://127.0.0.1:4321',
-    'https://miniature-train-6w6gqvxrq4v3wqg-4321.app.github.dev'
+    'https://miniature-train-6w6gqvxrq4v3wqg-4321.app.github.dev',
+    'https://84fe-102-210-40-102.ngrok-free.app',
 ]
 
 CORS_ALLOW_HEADERS = (
@@ -118,6 +127,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:4321',
     'http://127.0.0.1:4321',
     'http://127.0.0.1:8000',
+    'https://84fe-102-210-40-102.ngrok-free.app',
 ]
 
 # Session settings

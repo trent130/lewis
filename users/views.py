@@ -7,6 +7,9 @@ from rest_framework import status, permissions
 from django.contrib.auth import login
 from .serializers import CustomUserSerializer, LoginSerializer
 from django.utils.decorators import method_decorator
+import logging
+
+logger = logging.getLogger(__name__)
 
 @ensure_csrf_cookie
 def csrfTokenView(request):
@@ -69,16 +72,23 @@ class UserLoginView(APIView):
             
             return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class CurrentUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         user = request.user
+        logger.info(f"User  ID: {user.id} - Username: {user.username} - Authenticated: {user.is_authenticated}")
+
+        if not user.is_authenticated:
+            logger.warning("User  is not authenticated.")
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
         data = {
             'id': user.id,
             'username': user.username,
             'email': user.email,
+            # Uncomment if needed
             # 'first_name': user.first_name,
             # 'last_name': user.last_name,
         }

@@ -1,9 +1,17 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useAuthStore } from '../stores/authStore';
+
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  // Add other fields as necessary
+}
 
 const api = axios.create({
   // baseURL: 'https://miniature-train-6w6gqvxrq4v3wqg-8000.app.github.dev/',
-  baseURL: 'https://7fce-102-210-40-102.ngrok-free.app',
+  baseURL: 'https://84fe-102-210-40-102.ngrok-free.app',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -14,7 +22,7 @@ let csrfToken: string | null = null;
 let csrfPromise: Promise<string> | null = null;
 
 const fetchCSRFToken = async (): Promise<string> => {
-  if (csrfToken) return csrfToken;
+  if (csrfToken) return csrfToken || '';  // Return an empty string if null
   if (csrfPromise) return csrfPromise;
 
   csrfPromise = new Promise<string>(async (resolve, reject) => {
@@ -31,7 +39,7 @@ const fetchCSRFToken = async (): Promise<string> => {
       console.log('Attempting to fetch CSRF token...');
       
       // Use a direct axios call to eliminate any potential interceptor issues
-      const response = await axios.get('https://7fce-102-210-40-102.ngrok-free.app/users/get_csrf/', {
+      const response = await axios.get('https://84fe-102-210-40-102.ngrok-free.app/users/get_csrf/', {
         withCredentials: true,
         timeout: 8000, // Axios request timeout
         headers: {
@@ -49,7 +57,7 @@ const fetchCSRFToken = async (): Promise<string> => {
       // Validate the response
       if (response.data && response.data.csrfToken) {
         csrfToken = response.data.csrfToken;
-        resolve(csrfToken);
+        resolve(csrfToken as string);
       } else {
         throw new Error('Invalid CSRF token response');
       }
@@ -74,6 +82,9 @@ const fetchCSRFToken = async (): Promise<string> => {
 
   return csrfPromise;
 };
+
+
+
 
 // Modify the request interceptor to be more resilient
 // In the request interceptor
@@ -192,23 +203,35 @@ export const authApi = {
     }
   },
 
-  getCurrentUser: async () => {
+  getCurrent:  async (): Promise<User> => {
+    const { sessionId } = useAuthStore.getState();
+    
     try {
-      const { data } = await api.get('/users/me/');
-      return data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          // If unauthorized, clear csrf token
-          csrfToken = null;
+        if (!csrfToken) {
+            csrfToken = await fetchCSRFToken();
         }
-        console.error('Get current user error:', error.response?.data);
-      } else {
-        console.error('Unexpected getCurrentUser error:', error);
-      }
-      throw error;
+
+        const { data } = await api.get('/users/me/', {
+            withCredentials: true,
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Authorization': `Bearer ${sessionId}`
+            }
+        });
+
+        return data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response?.status === 401) {
+                csrfToken = null;
+            }
+            console.error('Get current user error:', error.response?.data);
+        } else {
+            console.error('Unexpected getCurrentUser  error:', error);
+        }
+        throw error;
     }
-  }
+}
 };
 
 export default api;

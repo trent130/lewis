@@ -33,3 +33,10 @@ class Donation(models.Model):
 
     def __str__(self):
         return f"{self.donor_name} - {self.amount}"
+
+class RecentDonation(models.Model):
+    donation = models.OneToOneField(Donation, on_delete=models.CASCADE)
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Recent donation by {self.donation.donor_name} at {self.viewed_at}"
