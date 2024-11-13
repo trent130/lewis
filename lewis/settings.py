@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-*h$^2(go-%f8wmh)90-^**5r&tgq04602$wh#-qkr5nx8s9)c('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -118,7 +118,6 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:4321',
     'http://127.0.0.1:4321',
     'http://127.0.0.1:8000',
-    'https://miniature-train-6w6gqvxrq4v3wqg-4321.app.github.dev'
 ]
 
 # Session settings
@@ -129,10 +128,10 @@ SESSION_COOKIE_SAMESITE = 'None'  # or 'None' if using different domains
 SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
 
 # CSRF settings
-CSRF_COOKIE_NAME = 'csrftoken'
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = 'Lax'  # or 'None' if using different domains
-CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_NAME = 'csrfToken'
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'None'  # or 'None' if using different domains
+CSRF_COOKIE_SECURE = True  # Set to True in production with HTTPS
 CSRF_USE_SESSIONS = False
 SESSION_COOKIE_AGE = 1209600 
 ROOT_URLCONF = 'lewis.urls'
@@ -156,7 +155,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'lewis.wsgi.application'
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Database

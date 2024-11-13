@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 
 const api = axios.create({
   // baseURL: 'https://miniature-train-6w6gqvxrq4v3wqg-8000.app.github.dev/',
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: 'https://7fce-102-210-40-102.ngrok-free.app',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -14,63 +14,102 @@ let csrfToken: string | null = null;
 let csrfPromise: Promise<string> | null = null;
 
 const fetchCSRFToken = async (): Promise<string> => {
-  // If we already have a CSRF token, return it immediately
   if (csrfToken) return csrfToken;
-
-  // If a promise to fetch the CSRF token is already in progress, return that promise
   if (csrfPromise) return csrfPromise;
 
-  // Create a new promise to fetch the CSRF token
   csrfPromise = new Promise<string>(async (resolve, reject) => {
-    try {
-      const { data } = await api.get('/users/get_csrf/');
-      csrfToken = data.csrfToken;
+    // Increase timeout duration
+    const timeout = setTimeout(() => {
+      console.error('CSRF Token Fetch Timeout Details:', {
+        csrfToken,
+        csrfPromise: !!csrfPromise
+      });
+      reject(new Error('Fetching CSRF token timed out'));
+    }, 10000); // Increased to 10 seconds
 
-      // Ensure that csrfToken is not null before resolving
-      if (csrfToken) {
+    try {
+      console.log('Attempting to fetch CSRF token...');
+      
+      // Use a direct axios call to eliminate any potential interceptor issues
+      const response = await axios.get('https://7fce-102-210-40-102.ngrok-free.app/users/get_csrf/', {
+        withCredentials: true,
+        timeout: 8000, // Axios request timeout
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      console.log('CSRF Token Fetch Response:', {
+        status: response.status,
+        data: response.data
+      });
+
+      clearTimeout(timeout);
+      
+      // Validate the response
+      if (response.data && response.data.csrfToken) {
+        csrfToken = response.data.csrfToken;
         resolve(csrfToken);
       } else {
-        reject(new Error("CSRF token is null")); // Handle case where token is null
+        throw new Error('Invalid CSRF token response');
       }
     } catch (error) {
-      csrfPromise = null; // Reset promise on error for future attempts
+      clearTimeout(timeout);
+      csrfPromise = null;
+
+      // Detailed error logging
+      console.error('Comprehensive CSRF Token Fetch Error:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        isAxiosError: axios.isAxiosError(error),
+        errorResponse: axios.isAxiosError(error) ? {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers
+        } : null
+      });
+
       reject(error);
     }
   });
 
-  // Return the csrfPromise
   return csrfPromise;
 };
 
-
-// Add debug interceptors to track requests and responses
+// Modify the request interceptor to be more resilient
+// In the request interceptor
 api.interceptors.request.use(
   async (config) => {
-    if (!csrfToken) {
-      csrfToken = await fetchCSRFToken();
+    try {
+      console.log('Preparing request:', config.url);
+      
+      if (!csrfToken) {
+        console.log('CSRF token not found. Fetching...');
+        try {
+          csrfToken = await fetchCSRFToken();
+          console.log('CSRF token successfully fetched:', csrfToken);
+        } catch (fetchError) {
+          console.error('Failed to fetch CSRF token:', fetchError);
+          // Reject the request if CSRF token cannot be fetched
+          return Promise.reject(new Error('CSRF token is required for this request.'));
+        }
+      }
+
+      if (csrfToken) {
+        config.headers['X-CSRFToken'] = csrfToken;
+      }
+
+      return config;
+    } catch (error) {
+      console.error('Request interceptor error:', error);
+      return Promise.reject(error);
     }
-    config.headers['X-CSRFToken'] = csrfToken;
-    
-    // Debug log
-    console.log('Request:', {
-      url: config.url,
-      method: config.method,
-      headers: config.headers,
-      withCredentials: config.withCredentials
-    });
-    
-    return config;
-  },
-  (error) => {
-    console.error('Request interceptor error:', error);
-    return Promise.reject(error);
   }
 );
 
+// In the response interceptor
 api.interceptors.response.use(
   (response) => {
-    // Debug log
-      console.log('Response:', {
+    console.log('Response:', {
       url: response.config.url,
       status: response.status,
       headers: response.headers,
@@ -85,7 +124,7 @@ api.interceptors.response.use(
         await fetchCSRFToken();
         return api(error.config);
       } catch (retryError) {
-        console.error('Failed to refresh CSRF token:', retryError);
+        return Promise.reject(retryError);
       }
     }
 
