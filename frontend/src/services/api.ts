@@ -37,7 +37,7 @@ const fetchCSRFToken = async (): Promise<string> => {
 
     try {
       console.log('Attempting to fetch CSRF token...');
-      
+
       // Use a direct axios call to eliminate any potential interceptor issues
       const response = await axios.get('https://84fe-102-210-40-102.ngrok-free.app/users/get_csrf/', {
         withCredentials: true,
@@ -53,7 +53,7 @@ const fetchCSRFToken = async (): Promise<string> => {
       });
 
       clearTimeout(timeout);
-      
+
       // Validate the response
       if (response.data && response.data.csrfToken) {
         csrfToken = response.data.csrfToken;
@@ -84,15 +84,13 @@ const fetchCSRFToken = async (): Promise<string> => {
 };
 
 
-
-
 // Modify the request interceptor to be more resilient
 // In the request interceptor
 api.interceptors.request.use(
   async (config) => {
     try {
       console.log('Preparing request:', config.url);
-      
+
       if (!csrfToken) {
         console.log('CSRF token not found. Fetching...');
         try {
@@ -118,35 +116,60 @@ api.interceptors.request.use(
 );
 
 // In the response interceptor
+// api.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const status = error.response?.status;
+//     if (status === 401 || status === 403) {
+//       csrfToken = null;  // Reset CSRF if unauthorized
+//       try {
+//         await fetchCSRFToken();
+//         return api(error.config);  // Retry the request with new CSRF
+//       } catch (retryError) {
+//         return Promise.reject(retryError);
+//       }
+//     }
+//     return Promise.reject(error);
+//   }
+// );
+
+let retryCount = 0; // Initialize a retry counter
+const MAX_RETRIES = 1; // Set a maximum number of retries
+
 api.interceptors.response.use(
-  (response) => {
-    console.log('Response:', {
-      url: response.config.url,
-      status: response.status,
-      headers: response.headers,
-      data: response.data
-    });
-    return response;
-  },
+  (response) => response,
   async (error) => {
-    if (error.response?.status === 403) {
-      csrfToken = null;
-      try {
-        await fetchCSRFToken();
-        return api(error.config);
-      } catch (retryError) {
-        return Promise.reject(retryError);
+    const status = error.response?.status;
+
+    // Log the original request for debugging
+    console.error('Original request:', error.config);
+
+    if (status === 401 || status === 403) {
+      // Reset CSRF if unauthorized
+      csrfToken = null;  
+
+      // Check if we have exceeded the maximum number of retries
+      if (retryCount < MAX_RETRIES) {
+        retryCount++; // Increment the retry counter
+        try {
+          await fetchCSRFToken(); // Fetch a new CSRF token
+          console.log('Fetched new CSRF token:', csrfToken);
+          return api(error.config);  // Retry the request with new CSRF
+        } catch (retryError) {
+          console.error('Error fetching new CSRF token:', retryError);
+          // Handle the case where fetching the CSRF token fails
+          return Promise.reject(retryError);
+        }
+      } else {
+        // If retries are exhausted, clear session data and redirect to login
+        console.warn('Maximum retries reached. Redirecting to login.');
+        useAuthStore.getState().logout(); // Call your logout function
+        window.location.href = '/login'; // Redirect to login page
       }
     }
 
-    const message = error.response?.data?.message || 'An error occurred';
-    toast.error(message);
-    console.error('API Error:', {
-      url: error.config?.url,
-      status: error.response?.status,
-      data: error.response?.data,
-      headers: error.response?.headers
-    });
+    // Log other types of errors
+    console.error('API Error:', error.response?.data);
     return Promise.reject(error);
   }
 );
@@ -156,7 +179,7 @@ export const authApi = {
     try {
       const { data } = await api.post('/users/login/', credentials);
       // After successful login, fetch CSRF token again
-      
+
       await fetchCSRFToken();
       return data;
     } catch (error) {
@@ -203,35 +226,35 @@ export const authApi = {
     }
   },
 
-  getCurrent:  async (): Promise<User> => {
+  getCurrent: async (): Promise<User> => {
     const { sessionId } = useAuthStore.getState();
-    
+
     try {
-        if (!csrfToken) {
-            csrfToken = await fetchCSRFToken();
+      if (!csrfToken) {
+        csrfToken = await fetchCSRFToken();
+      }
+
+      const { data } = await api.get('/users/me/', {
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'Authorization': `Bearer ${sessionId}`
         }
+      });
 
-        const { data } = await api.get('/users/me/', {
-            withCredentials: true,
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'Authorization': `Bearer ${sessionId}`
-            }
-        });
-
-        return data;
+      return data;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response?.status === 401) {
-                csrfToken = null;
-            }
-            console.error('Get current user error:', error.response?.data);
-        } else {
-            console.error('Unexpected getCurrentUser  error:', error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          csrfToken = null;
         }
-        throw error;
+        console.error('Get current user error:', error.response?.data);
+      } else {
+        console.error('Unexpected getCurrentUser  error:', error);
+      }
+      throw error;
     }
-}
+  }
 };
 
 export default api;

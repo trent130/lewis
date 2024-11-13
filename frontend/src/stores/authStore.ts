@@ -55,7 +55,6 @@ export const useAuthStore = create<AuthState>()(
             error: null
           });
           localStorage.setItem('sessionId', response.sessionId);
-          console.log(response.sessionId)
           toast.success('Login successful');
           return true;
         } catch (error: any) {

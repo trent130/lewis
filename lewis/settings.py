@@ -14,13 +14,14 @@ SECRET_KEY = 'django-insecure-*h$^2(go-%f8wmh)90-^**5r&tgq04602$wh#-qkr5nx8s9)c(
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'http://localhost:3000',
-    'http://localhost:4321',
-    'http://127.0.0.1:4321',
-    'https://miniature-train-6w6gqvxrq4v3wqg-4321.app.github.dev',
-    'https://84fe-102-210-40-102.ngrok-free.app',
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
+    # 'http://localhost:3000',
+    # 'http://localhost:4321',
+    # 'http://127.0.0.1:4321',
+    # 'https://miniature-train-6w6gqvxrq4v3wqg-4321.app.github.dev',
+    # 'https://84fe-102-210-40-102.ngrok-free.app',
+    # 'http://localhost:8000',
+    # 'http://127.0.0.1:8000',
+    '*'
 ]
 
 Logging = {
@@ -85,9 +86,9 @@ INSTALLED_APPS = [
     ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware', 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -165,6 +166,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'lewis.wsgi.application'
 
 CORS_ALLOW_CREDENTIALS = True
+
 # CORS_ALLOW_ALL_ORIGINS = True
 
 
