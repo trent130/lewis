@@ -1,12 +1,10 @@
-from django.shortcuts import render, redirect
-from django.urls import reverse
 from users.models import CustomUser
 from .forms import ChatForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
 from .models import Chat, Memorial, Donation
-from rest_framework import viewsets
+from rest_framework import generics
+from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Donation, RecentDonation
@@ -49,13 +47,19 @@ def chat(request):
 #         pass
 #     return render(request, 'foundation/donate.html')
 
-class DonationViewSet(viewsets.ModelViewSet):
-    queryset = Donation.objects.all()
+class DonationsView(generics.ListAPIView):
+    queryset = Donation.objects.all().order_by('-date')  # Add this line
     serializer_class = DonationSerializer
+    permission_classes = [permissions.IsAuthenticated]  # Changed from DjangoModelPermissionsOrAnonReadOnly
+    
+    def get_queryset(self):
+        # You can customize the queryset here if needed
+        return Donation.objects.all().order_by('-date')[:10]  # Get last 10 donations
 
-@api_view(['GET'])
-def recent_donations(request):
-    # Fetch recent donations (this can be filtered to your needs)
-    recent_donations = RecentDonation.objects.all().order_by('-viewed_at')[:10]  # Fetch top 10 recent donations
-    serializer = RecentDonationSerializer(recent_donations, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+
+class RecentDonationsView(generics.ListAPIView):
+    queryset = RecentDonation.objects.all().order_by('-viewed_at')[:10]
+    serializer_class = RecentDonationSerializer
+    
+    def get_queryset(self):
+        return RecentDonation.objects.all().order_by('-viewed_at')[:10]  # Fetch top 10 recent donations
