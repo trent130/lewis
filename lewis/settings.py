@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-*h$^2(go-%f8wmh)90-^**5r&tgq04602$wh#-qkr5nx8s9)c('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     # 'http://localhost:3000',
@@ -101,7 +101,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:4321',
     'http://127.0.0.1:4321',
     'https://miniature-train-6w6gqvxrq4v3wqg-4321.app.github.dev',
-    'https://84fe-102-210-40-102.ngrok-free.app',
+    'https://41f2-102-210-40-102.ngrok-free.app',
 ]
 
 CORS_ALLOW_HEADERS = (
@@ -128,12 +128,12 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:4321',
     'http://127.0.0.1:4321',
     'http://127.0.0.1:8000',
-    'https://84fe-102-210-40-102.ngrok-free.app',
+    'https://a972-102-210-40-102.ngrok-free.app ',
 ]
 
 # Session settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_NAME = 'sessionId'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'None'  # or 'None' if using different domains
 SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
@@ -192,6 +192,7 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
@@ -202,10 +203,13 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  # Adjust as needed
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Adjust as needed
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Adjust as needed
     'ROTATE_REFRESH_TOKENS': True,                  # Allows refresh token rotation
     'BLACKLIST_AFTER_ROTATION': True,               # Blacklist the rotated token
+    'UPDATE_LAST_LOGIN': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
 }
 
 # Password validation

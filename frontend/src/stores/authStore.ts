@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authApi } from '../services/api';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 
 interface User {
   id: number;
@@ -26,12 +27,20 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  sessionId: string | null; // Add sessionId to the state
+  sessionId: string | null;
+  refreshToken: string | null;
+  accessToken: string | null;
+  lastLogin: Date | null;
+
+  //actions
   login: (data: LoginData) => Promise<boolean>;
   logout: () => Promise<void>;
   register: (data: RegisterData) => Promise<boolean>;
   checkAuth: () => Promise<boolean>;
   clearError: () => void;
+  setTokens: (access: string, refresh: string) => void;
+  updateLastLogin: () => void;
+  clearTokens: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -41,20 +50,49 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
-      sessionId: null, // Initialize sessionId
+      accessToken: null,
+      refreshToken: null,
+      sessionId: null,
+      lastLogin: null,
+
+      setTokens: (access: string, refresh: string) => {
+        set({
+          accessToken: access,
+          refreshToken: refresh,
+          isAuthenticated: true
+        });
+        api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+      },	
+
+      clearTokens: () => {
+        set({ accessToken: null, refreshToken: null });
+        delete api.defaults.headers.common['Authorization'];
+      },
+
+      updateLastLogin: () => {
+        set({ lastLogin: new Date() });
+      },
 
       login: async (data: LoginData) => {
         set({ isLoading: true, error: null });
         try {
           const response = await authApi.login(data);
+          const {user, credentials: { access, refresh} } = response;
+          
+          get().setTokens(access, refresh);
+          get().updateLastLogin();
+
           set({
-            user: response.user, // Ensure response.user is of type User
+            user: {
+              ...response.user,
+              id: Number(response.user.id)
+            },
             isAuthenticated: true,
-            sessionId: response.sessionId,
             isLoading: false,
-            error: null
+            error: null,
+            lastLogin: new Date()
           });
-          localStorage.setItem('sessionId', response.sessionId);
+          
           toast.success('Login successful');
           return true;
         } catch (error: any) {
@@ -63,7 +101,9 @@ export const useAuthStore = create<AuthState>()(
             user: null,
             isAuthenticated: false,
             isLoading: false,
-            error: errorMessage
+            error: errorMessage,
+            accessToken: null,
+            refreshToken: null
           });
           toast.error(errorMessage);
           return false;
@@ -73,14 +113,26 @@ export const useAuthStore = create<AuthState>()(
       register: async (data: RegisterData) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await authApi.register(data);
+          const user = await authApi.register(data);
+          const loginResponse = await authApi.login({
+            email: data.email,
+            password: data.password
+          });
+          
+          const { access, refresh } = loginResponse.credentials;
+          get().setTokens(access, refresh);
+          get().updateLastLogin();
           set({
-            user: response.user, // Ensure response.user is of type User
+            user: {
+              id: Number(user.id),
+              email: user.email,
+              username: user.username
+            },
             isAuthenticated: true,
             isLoading: false,
             error: null
           });
-          localStorage.setItem('sessionId', response.sessionId);
+          // localStorage.setItem('sessionId', response.sessionId);
           toast.success('Registration successful');
           return true;
         } catch (error: any) {
@@ -105,9 +157,11 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             sessionId: null,
             isLoading: false,
-            error: null
+            error: null,
+            accessToken: null,
+            refreshToken: null
           });
-          localStorage.removeItem('sessionId');
+          delete api.defaults.headers.common['Authorization'];
           toast.success('Logged out successfully');
         } catch (error: any) {
           const errorMessage = error.response?.data?.message || 'Logout failed';
@@ -119,48 +173,55 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      checkAuth: async () => {
+      checkAuth: async (): Promise<boolean> => {
         set({ isLoading: true, error: null });
-        const sessionId = localStorage.getItem('sessionId');
-        if (sessionId) {
+        const refreshToken = get().refreshToken;
+        const accessToken = get().accessToken;
+
+        if(!refreshToken || !accessToken) {
+          set({ isAuthenticated: false });
+          return false;
+        }
+
+        if (refreshToken && accessToken) {
           try {
-            const user = await authApi.getCurrent(); // Ensure this matches your API method
+            const response = await authApi.getCurrentUser();
             set({
-              user,
+              user: {
+                ...response,
+                id: Number(response.id)
+              },
               isAuthenticated: true,
               isLoading: false,
               error: null
             });
             return true;
           } catch (error) {
-            set({
-              user: null,
-              isAuthenticated: false,
-              isLoading: false,
-              error: 'Authentication failed'
-            });
-            localStorage.removeItem('sessionId'); // Clear session ID if failed
-            return false;
+            try {
+              const refreshResponse = await authApi.refreshToken(refreshToken);
+              const {access: newAccess, refresh: newRefresh} = refreshResponse.data;
+              get().setTokens(newAccess, newRefresh);
+              return true;
+            } catch (refreshError) {
+              get().logout();
+              return false;
+            }
           }
-        } else {
-          set({
-            user: null,
-            isAuthenticated: false,
-            isLoading: false,
-            error: null
-          });
-          return false;
         }
+        return false;
       },
 
       clearError: () => set({ error: null })
     }),
     {
-      name: 'auth-storage', // name of the item in storage
+      name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
-        sessionId: state.sessionId
+        sessionId: state.sessionId,
+        refreshToken: state.refreshToken,
+        accessToken: state.accessToken,
+        lastLogin: state.lastLogin
       })
     }
   )

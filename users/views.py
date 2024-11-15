@@ -8,6 +8,8 @@ from django.contrib.auth import login
 from .serializers import CustomUserSerializer, LoginSerializer
 from django.utils.decorators import method_decorator
 import logging
+from rest_framework_simplejwt.tokens import RefreshToken
+from .models import CustomUser
 
 logger = logging.getLogger(__name__)
 
@@ -36,11 +38,13 @@ class UserRegistrationView(APIView):
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class UserLoginView(APIView):
     permission_classes = [permissions.AllowAny]
+    queryset = CustomUser.objects.all()
 
     def post(self, request):
-        serializer = LoginSerializer(data=request.data)
+        serializer = LoginSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             user = serializer.validated_data['user']
+            refresh = RefreshToken.for_user(user)
             login(request, user)
             
             # Debug session information
@@ -54,7 +58,9 @@ class UserLoginView(APIView):
                     'id': user.id,
                     'email': user.email,
                     'username': user.username,
-                }
+                },
+                'refresh': str(refresh),
+                'access': str(refresh.access_token)
             }, status=status.HTTP_200_OK)
             
             # Set session cookie

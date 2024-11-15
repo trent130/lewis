@@ -4,7 +4,7 @@ import { blogService } from '../../services/blogservice';
 import { SocialShare } from '../../components/SocialShare';
 
 const { slug } = Astro.params;
-const post = await blogService.getPost(slug);
+const post = await blogService.getPost(slug as string);
 
 if (!post) {
   return Astro.redirect('/404');

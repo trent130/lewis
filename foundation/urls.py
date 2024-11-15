@@ -1,5 +1,5 @@
 from django.urls import path
-from foundation import views
+from .views import RecentDonationsView, DonationsView
 
 urlpatterns = [
     # path('', views.home, name='home'),
@@ -10,5 +10,6 @@ urlpatterns = [
     # path('blog/', views.blog, name='blog'),
     # path('blog-details/', views.blog_details, name='blog-details'),
     # path('error-404/', views.error_404, name='error-404'),
-    path('recent/', views.recent_donations, name='recent-donations'),
+    path('recent/', RecentDonationsView.as_view(), name='recent-donations'),
+    path('donations/', DonationsView.as_view(), name='donations'),
 ]

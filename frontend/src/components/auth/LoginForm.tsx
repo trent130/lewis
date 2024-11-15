@@ -1,13 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuthStore } from '../../stores/authStore';
 import toast from 'react-hot-toast';
+import api from '../../services/api';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string()
+      .min(8, 'Password must be at least 8 characters'),
+      // .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      // .regex(/[0-9]/, 'Password must contain at least one number')
+      // .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
   rememberMe: z.boolean().optional(),
 });
 
@@ -15,6 +20,9 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const { login, isLoading } = useAuthStore();
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<Date | null>(null);
+  
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema)
   });
@@ -25,6 +33,58 @@ export default function LoginForm() {
       setValue('email', rememberedEmail);
     }
   }, [setValue]);
+
+  useEffect(() => {
+    if (lockoutUntil && new Date() < lockoutUntil) {
+      toast.error('Too many login attempts. Please try again later.');
+    }
+  }, [lockoutUntil]);
+
+  useEffect(() => {
+    if (errors.email || errors.password) {
+      setAttemptCount(prevCount => prevCount + 1);
+      setLockoutUntil(new Date(Date.now() + 30000)); // Lockout for 30 seconds
+    }
+  }, [errors]);
+
+  useEffect(() => {
+    if (attemptCount >= 3) {
+      setLockoutUntil(new Date(Date.now() + 60000)); // Lockout for 1 minute
+    }
+  }, [attemptCount]);
+
+  useEffect(() => {
+    if (lockoutUntil && new Date() >= lockoutUntil) {
+      setLockoutUntil(null);
+      setAttemptCount(0);
+    }
+  }, [lockoutUntil]);
+
+  useEffect(() => {
+    if (isLoading) {
+      toast.loading('Logging in...');
+    }
+  }, [isLoading]);
+
+  useEffect(() => {
+    const getCsrfToken = async () => {
+      try {
+        const response = await fetch('/api/csrf-token');
+        const { token } = await response.json();
+        api.defaults.headers.common['X-CSRF-Token'] = token;
+      } catch (error) {
+        console.error('Failed to fetch CSRF token:', error);
+        toast.error('Security verification failed. Please refresh the page.');
+      }
+    };
+    getCsrfToken();
+  }, []);
+
+  useAuthStore.subscribe((state) => {
+    if (state.isAuthenticated) {
+      toast.success('Login successful!');
+    }
+  });
 
   const onSubmit = async (data: LoginFormData) => {
     try {

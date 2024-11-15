@@ -10,35 +10,23 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const { isAuthenticated, checkAuth } = useAuthStore();
 
   useEffect(() => {
-    // Check authentication status on mount
-    const authenticateUser  = async () => {
+    const authenticateUser = async () => {
+      console.log('Authenticating user...');
       try {
-        const isAuthenticated = await checkAuth(); // Use the checkAuth method from the store
+        // const isAuthenticated = await checkAuth();
         if (isAuthenticated) {
-          // Optionally, you can log the user data here if needed
-          // const user = useAuthStore.getState().user; // Get the user from the store
-          // console.log('User  data:', user);
+          // Success case - no need for empty block
         }
       } catch (error) {
         console.error('Authentication check failed:', error);
-        toast.error('Failed to authenticate user.'); // Provide feedback to the user
+        toast.error('Unable to verify your login status. Please try again.');
       }
     };
 
     if (!isAuthenticated) {
-      authenticateUser ();
+      authenticateUser();
     }
-  }, [isAuthenticated, checkAuth]); // Include checkAuth in the dependency array
+  }, [isAuthenticated, checkAuth]);
 
   return <>{children}</>;
 }
-
-/* export default function AuthProvider({ children }: AuthProviderProps) {
-  const checkAuth = useAuthStore(state => state.checkAuth);
-  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      checkAuth();
-    }
-  }, [isAuthenticated, checkAuth]);*/

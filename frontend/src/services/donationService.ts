@@ -1,4 +1,5 @@
 import api from './api';
+import { AxiosError } from 'axios';
 
 export interface DonationData {
   amount: number;
@@ -10,7 +11,7 @@ export interface DonationData {
   isAnonymous: boolean;
 }
 
-interface Donor {
+export interface Donor {
   id: string;
   name: string;
   amount: number;
@@ -18,19 +19,50 @@ interface Donor {
   isAnonymous: boolean;
 }
 
+export interface DonationResponse {
+  id: string;
+  status: 'success' | 'pending' | 'failed';
+  message: string;
+  donation: DonationData;
+}
+
 export const donationService = {
-  async processDonation(data: DonationData) {
-    const response = await api.post('/donations', data);
-    return response.data;
+  async processDonation(data: DonationData): Promise<DonationResponse> {
+    try {
+      const response = await api.post<DonationResponse>('/donations/', data);
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      throw new Error(
+        (axiosError.response?.data as { message: string })?.message || 
+        'Failed to process donation'
+      );
+    }
   },
 
-  async getDonationHistory() {
-    const response = await api.get('/donations/history');
-    return response.data;
+  async getDonationHistory(): Promise<DonationData[]> {
+    try {
+      const response = await api.get<DonationData[]>('/donations/history/');
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      throw new Error(
+        (axiosError.response?.data as { message: string })?.message || 
+        'Failed to fetch donation history'
+      );
+    }
   },
 
   async getRecentDonors(): Promise<Donor[]> {
-    const response = await api.get('/donations/recent');
-    return response.data;
+    try {
+      const response = await api.get<Donor[]>('/donations/recent/');
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      throw new Error(
+        (axiosError.response?.data as { message: string })?.message ||
+        'Failed to fetch recent donors'
+      );
+    }
   }
 };
