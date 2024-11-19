@@ -14,12 +14,8 @@ import {
   CircularProgress,
   Chip,
   InputAdornment,
-  IconButton,
-  Divider,
   Paper,
   useTheme,
-  Tabs,
-  Tab,
   MenuItem, 
 } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
@@ -27,7 +23,6 @@ import ForumPost from '../components/forum/ForumPost';
 import { api } from '../services/api';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import SortIcon from '@mui/icons-material/Sort';
 import ForumIcon from '@mui/icons-material/Forum';
 
