@@ -1,12 +1,68 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
 
 const AuthContext = createContext(null);
 
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    delete api.defaults.headers.common['Authorization'];
+    setUser(null);
+    setIsAuthenticated(false);
+  }, []);
+
+  const refreshToken = useCallback(async () => {
+    try {
+      const refresh = localStorage.getItem('refreshToken');
+      if (!refresh) throw new Error('No refresh token');
+
+      const response = await api.post('/api/auth/token/refresh/', {
+        refresh: refresh
+      });
+
+      const { access } = response.data;
+      localStorage.setItem('token', access);
+      api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+      return true;
+    } catch (error) {
+      handleLogout();
+      return false;
+    }
+  }, [handleLogout]);
+
+  const checkAuthStatus = useCallback(async () => {
+    try {
+      const response = await api.get('/api/auth/user/');
+      setUser(response.data);
+      setIsAuthenticated(true);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        const refreshed = await refreshToken();
+        if (refreshed) {
+          const response = await api.get('/api/auth/user/');
+          setUser(response.data);
+          setIsAuthenticated(true);
+        } else {
+          handleLogout();
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [refreshToken, handleLogout]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -15,73 +71,40 @@ export const AuthProvider = ({ children }) => {
       checkAuthStatus();
     } else {
       setLoading(false);
+      setIsAuthenticated(false);
     }
-  }, []);
-
-  const checkAuthStatus = async () => {
-    try {
-      const response = await api.get('/api/auth/user/');
-      setUser(response.data);
-    } catch (error) {
-      localStorage.removeItem('token');
-      delete api.defaults.headers.common['Authorization'];
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [checkAuthStatus]);
 
   const login = async (email, password) => {
-    const response = await api.post('/api/auth/token/', { email, password });
-    const { access, refresh } = response.data;
-    localStorage.setItem('token', access);
-    localStorage.setItem('refreshToken', refresh);
-    api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
-    await checkAuthStatus();
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    delete api.defaults.headers.common['Authorization'];
-    setUser(null);
-  };
-
-  const register = async (userData) => {
     try {
-      const response = await api.post('/api/auth/register/', userData);  // Update the endpoint
-      if (response.data.access) {
-        localStorage.setItem('token', response.data.access);
-        localStorage.setItem('refreshToken', response.data.refresh);
-        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;  // Add this line
-        setUser(response.data.user);
-        setIsAuthenticated(true);
-        return response.data;
-      }
+      const response = await api.post('/api/auth/token/', { email, password });
+      const { access, refresh, user: userData } = response.data;
+      
+      localStorage.setItem('token', access);
+      localStorage.setItem('refreshToken', refresh);
+      api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+      
+      setUser(userData);
+      setIsAuthenticated(true);
+      return true;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error;
     }
   };
 
   const value = {
     user,
     loading,
-    login,
-    logout,
-    register,
     isAuthenticated,
+    login,
+    logout: handleLogout,
+    refreshToken,
+    checkAuthStatus
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };

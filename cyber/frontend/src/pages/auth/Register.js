@@ -10,21 +10,40 @@ import {
   Box,
   Alert,
   MenuItem,
+  IconButton,
+  InputAdornment,
+  CircularProgress,
+  Stepper,
+  Step,
+  StepLabel,
+  useTheme,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../context/AuthContext';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import EmailIcon from '@mui/icons-material/Email';
+import PersonIcon from '@mui/icons-material/Person';
+import BadgeIcon from '@mui/icons-material/Badge';
 
 const Register = () => {
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
+  const theme = useTheme();
 
   const userTypes = [
-    { value: 'patient', label: 'Patient' },
-    { value: 'donor', label: 'Donor' },
-    { value: 'volunteer', label: 'Volunteer' },
+    { value: 'patient', label: 'Patient', icon: '🏥' },
+    { value: 'donor', label: 'Donor', icon: '❤️' },
+    { value: 'volunteer', label: 'Volunteer', icon: '🤝' },
   ];
+
+  const steps = ['Personal Info', 'Account Details', 'User Type'];
 
   const formik = useFormik({
     initialValues: {
@@ -37,138 +56,316 @@ const Register = () => {
     },
     validationSchema: Yup.object({
       firstName: Yup.string()
-        .required('Required'),
+        .min(2, 'Too Short!')
+        .max(50, 'Too Long!')
+        .required('First name is required'),
       lastName: Yup.string()
-        .required('Required'),
+        .min(2, 'Too Short!')
+        .max(50, 'Too Long!')
+        .required('Last name is required'),
       email: Yup.string()
         .email('Invalid email address')
-        .required('Required'),
+        .required('Email is required'),
       password: Yup.string()
-        .min(8, 'Must be at least 8 characters')
-        .required('Required'),
+        .min(8, 'Password must be at least 8 characters')
+        .matches(/[a-z]/, 'Must contain at least one lowercase letter')
+        .matches(/[A-Z]/, 'Must contain at least one uppercase letter')
+        .matches(/[0-9]/, 'Must contain at least one number')
+        .required('Password is required'),
       confirmPassword: Yup.string()
         .oneOf([Yup.ref('password'), null], 'Passwords must match')
-        .required('Required'),
+        .required('Please confirm your password'),
       userType: Yup.string()
-        .required('Required'),
+        .required('Please select your user type'),
     }),
     onSubmit: async (values) => {
+      setError('');
+      setLoading(true);
       try {
         await register(values);
         navigate('/dashboard');
       } catch (err) {
-        setError('Registration failed. Please try again.');
+        setError(err.message || 'Registration failed. Please try again.');
+      } finally {
+        setLoading(false);
       }
     },
   });
 
+  const getActiveStep = () => {
+    if (!formik.values.firstName || !formik.values.lastName) return 0;
+    if (!formik.values.email || !formik.values.password) return 1;
+    if (!formik.values.userType) return 2;
+    return 3;
+  };
+
   return (
     <Container component="main" maxWidth="sm">
-      <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
-        <Typography component="h1" variant="h5" align="center">
-          Create Account
-        </Typography>
-        
-        {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {error}
-          </Alert>
-        )}
-
-        <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 2 }}>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <TextField
-              fullWidth
-              margin="normal"
-              name="firstName"
-              label="First Name"
-              value={formik.values.firstName}
-              onChange={formik.handleChange}
-              error={formik.touched.firstName && Boolean(formik.errors.firstName)}
-              helperText={formik.touched.firstName && formik.errors.firstName}
-            />
-            
-            <TextField
-              fullWidth
-              margin="normal"
-              name="lastName"
-              label="Last Name"
-              value={formik.values.lastName}
-              onChange={formik.handleChange}
-              error={formik.touched.lastName && Boolean(formik.errors.lastName)}
-              helperText={formik.touched.lastName && formik.errors.lastName}
-            />
+      <Box
+        sx={{
+          mt: 8,
+          mb: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            width: '100%',
+            borderRadius: 2,
+            backgroundColor: 'background.paper',
+            transition: 'transform 0.3s ease-in-out',
+            '&:hover': {
+              transform: 'translateY(-4px)',
+            },
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              mb: 4,
+            }}
+          >
+            <Box
+              sx={{
+                width: 56,
+                height: 56,
+                borderRadius: '50%',
+                backgroundColor: 'primary.main',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                mb: 2,
+              }}
+            >
+              <PersonAddIcon sx={{ color: 'white', fontSize: 30 }} />
+            </Box>
+            <Typography component="h1" variant="h5" fontWeight="bold">
+              Create Account
+            </Typography>
           </Box>
 
-          <TextField
-            fullWidth
-            margin="normal"
-            name="email"
-            label="Email Address"
-            value={formik.values.email}
-            onChange={formik.handleChange}
-            error={formik.touched.email && Boolean(formik.errors.email)}
-            helperText={formik.touched.email && formik.errors.email}
-          />
-
-          <TextField
-            fullWidth
-            margin="normal"
-            name="userType"
-            select
-            label="I am a"
-            value={formik.values.userType}
-            onChange={formik.handleChange}
-            error={formik.touched.userType && Boolean(formik.errors.userType)}
-            helperText={formik.touched.userType && formik.errors.userType}
-          >
-            {userTypes.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
+          <Stepper activeStep={getActiveStep()} sx={{ mb: 4 }}>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
             ))}
-          </TextField>
+          </Stepper>
 
-          <TextField
-            fullWidth
-            margin="normal"
-            name="password"
-            label="Password"
-            type="password"
-            value={formik.values.password}
-            onChange={formik.handleChange}
-            error={formik.touched.password && Boolean(formik.errors.password)}
-            helperText={formik.touched.password && formik.errors.password}
-          />
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: 3,
+                animation: 'fadeIn 0.5s ease-in',
+                '@keyframes fadeIn': {
+                  '0%': { opacity: 0, transform: 'translateY(-10px)' },
+                  '100%': { opacity: 1, transform: 'translateY(0)' },
+                },
+              }}
+            >
+              {error}
+            </Alert>
+          )}
 
-          <TextField
-            fullWidth
-            margin="normal"
-            name="confirmPassword"
-            label="Confirm Password"
-            type="password"
-            value={formik.values.confirmPassword}
-            onChange={formik.handleChange}
-            error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
-            helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
-          />
+          <Box component="form" onSubmit={formik.handleSubmit}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                margin="normal"
+                name="firstName"
+                label="First Name"
+                autoFocus
+                value={formik.values.firstName}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+                helperText={formik.touched.firstName && formik.errors.firstName}
+                disabled={loading}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              
+              <TextField
+                fullWidth
+                margin="normal"
+                name="lastName"
+                label="Last Name"
+                value={formik.values.lastName}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+                helperText={formik.touched.lastName && formik.errors.lastName}
+                disabled={loading}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
-            Register
-          </Button>
+            <TextField
+              fullWidth
+              margin="normal"
+              name="email"
+              label="Email Address"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.email && Boolean(formik.errors.email)}
+              helperText={formik.touched.email && formik.errors.email}
+              disabled={loading}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-          <Box sx={{ textAlign: 'center' }}>
-            <Link component={RouterLink} to="/login" variant="body2">
-              Already have an account? Sign In
-            </Link>
+            <TextField
+              fullWidth
+              margin="normal"
+              name="userType"
+              select
+              label="I am a"
+              value={formik.values.userType}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.userType && Boolean(formik.errors.userType)}
+              helperText={formik.touched.userType && formik.errors.userType}
+              disabled={loading}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <BadgeIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            >
+              {userTypes.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <span>{option.icon}</span>
+                    {option.label}
+                  </Box>
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
+              fullWidth
+              margin="normal"
+              name="password"
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={formik.touched.password && formik.errors.password}
+              disabled={loading}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <TextField
+              fullWidth
+              margin="normal"
+              name="confirmPassword"
+              label="Confirm Password"
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+              helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+              disabled={loading}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={loading || !formik.isValid || !formik.dirty}
+              sx={{
+                mt: 3,
+                mb: 2,
+                py: 1.5,
+                position: 'relative',
+                '&:disabled': {
+                  backgroundColor: theme.palette.action.disabledBackground,
+                },
+              }}
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                'Create Account'
+              )}
+            </Button>
+
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                Already have an account?{' '}
+                <Link
+                  component={RouterLink}
+                  to="/login"
+                  sx={{
+                    color: 'primary.main',
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  Sign In
+                </Link>
+              </Typography>
+            </Box>
           </Box>
-        </Box>
-      </Paper>
+        </Paper>
+      </Box>
     </Container>
   );
 };
