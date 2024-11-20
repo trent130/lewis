@@ -18,21 +18,21 @@ const resources = [
   {
     title: 'Understanding Sickle Cell',
     description: 'Learn about the basics of sickle cell disease, its causes, symptoms, and impact on daily life.',
-    image: '/images/understanding.jpg', // Replace with actual image
+    image: 'https://unsplash.com/photos/a-purple-and-black-background-with-wavy-lines-VNJ2CXUJe1k', // Replace with actual image
     link: '/resources/understanding',
     color: '#e3f2fd' // light blue
   },
   {
     title: 'Treatment Options',
     description: 'Explore various treatment options, medications, and management strategies for sickle cell disease.',
-    image: '/images/treatment.jpg', // Replace with actual image
+    image: 'https://unsplash.com/photos/a-purple-and-black-background-with-wavy-lines-VNJ2CXUJe1k', // Replace with actual image
     link: '/resources/treatment',
     color: '#f3e5f5' // light purple
   },
   {
     title: 'Support Network',
     description: 'Connect with our community, find support groups, and access valuable resources for patients and families.',
-    image: '/images/support.jpg', // Replace with actual image
+    image: 'https://unsplash.com/photos/a-purple-and-black-background-with-wavy-lines-VNJ2CXUJe1k', // Replace with actual image
     link: '/resources/support',
     color: '#e8f5e9' // light green
   }
