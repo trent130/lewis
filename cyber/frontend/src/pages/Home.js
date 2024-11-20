@@ -8,9 +8,6 @@ import {
   Card,
   CardContent,
   CardMedia,
-  IconButton,
-  Paper,
-  Divider,
   useTheme,
   Fade,
 } from '@mui/material';

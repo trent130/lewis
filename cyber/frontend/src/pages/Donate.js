@@ -20,7 +20,6 @@ import { api } from '../services/api';
 import SchoolIcon from '@mui/icons-material/School';
 import ScienceIcon from '@mui/icons-material/Science';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SecurityIcon from '@mui/icons-material/Security';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
