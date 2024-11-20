@@ -21,6 +21,22 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+api.interceptors.request.use(
+  (config) => {
+    console.log('API Request:', {
+      url: config.url,
+      method: config.method,
+      data: config.data,
+      headers: config.headers,
+    });
+    return config;
+  },
+  (error) => {
+    console.error('API Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -63,6 +79,51 @@ api.interceptors.response.use(
       } finally {
         isRefreshing = false;
       }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.request.use(
+  (config) => {
+    if (config.url === '/api/auth/register/') {
+      config.headers['Content-Type'] = 'application/json';
+    }
+    
+    console.log('Outgoing request:', {
+      url: config.url,
+      method: config.method,
+      data: config.data,
+      headers: config.headers
+    });
+    
+    return config;
+  },
+  (error) => {
+    console.error('Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => {
+    console.log('Response:', {
+      url: response.config.url,
+      status: response.status,
+      data: response.data
+    });
+    return response;
+  },
+  async (error) => {
+    console.error('Response error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+
+    if (error.response?.status === 400 && error.config.url === '/api/auth/register/') {
+      console.error('Registration validation error:', error.response.data);
     }
 
     return Promise.reject(error);

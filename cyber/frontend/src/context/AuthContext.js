@@ -92,10 +92,83 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const resetPassword = async (email) => {
+  try {
+    await api.post('/api/auth/reset-password/', { email });
+    return true;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || 
+      'Failed to send reset link. Please try again.'
+    );
+  }
+  };
+
+  const register = async (userData) => {
+    try {
+      console.log('Registration data being sent:', userData);
+
+      const registerResponse = await api.post('/api/auth/register/', {
+        email: userData.email,
+        password: userData.password,
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        user_type: userData.user_type
+      });
+
+      console.log('Registration response:', registerResponse.data);
+
+      const loginResponse = await api.post('/api/auth/token/', {
+        email: userData.email,
+        password: userData.password,
+      });
+
+      const { access, refresh, user: newUserData } = loginResponse.data;
+      
+      localStorage.setItem('token', access);
+      localStorage.setItem('refreshToken', refresh);
+      api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+      
+      setUser(newUserData);
+      setIsAuthenticated(true);
+
+      return registerResponse.data;
+    } catch (error) {
+      console.error('Registration error:', error.response?.data);
+      
+      if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      }
+      
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        let errorMessage = 'Registration failed: ';
+
+        if (typeof errorData === 'object') {
+          Object.entries(errorData).forEach(([key, value]) => {
+            if (Array.isArray(value)) {
+              errorMessage += `${key}: ${value.join(' ')} `;
+            } else if (typeof value === 'string') {
+              errorMessage += `${key}: ${value} `;
+            }
+          });
+        } else {
+          errorMessage += errorData;
+        }
+
+        throw new Error(errorMessage.trim());
+      }
+      
+      throw new Error('An unexpected error occurred during registration.');
+    }
+  };
+
   const value = {
     user,
     loading,
     isAuthenticated,
+    register,
+    resetPassword,
     login,
     logout: handleLogout,
     refreshToken,
@@ -108,3 +181,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+

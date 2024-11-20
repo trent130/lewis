@@ -27,6 +27,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import EmailIcon from '@mui/icons-material/Email';
 import PersonIcon from '@mui/icons-material/Person';
 import BadgeIcon from '@mui/icons-material/Badge';
+// import PhoneIcon from '@mui/icons-material/Phone';
 
 const Register = () => {
   const [error, setError] = useState('');
@@ -39,8 +40,8 @@ const Register = () => {
 
   const userTypes = [
     { value: 'patient', label: 'Patient', icon: '🏥' },
-    { value: 'donor', label: 'Donor', icon: '❤️' },
-    { value: 'volunteer', label: 'Volunteer', icon: '🤝' },
+    { value: 'caregiver', label: 'Caregiver', icon: '❤️' },
+    { value: 'volunteer', label: 'volunteer', icon: '🤝' },
   ];
 
   const steps = ['Personal Info', 'Account Details', 'User Type'];
@@ -53,6 +54,8 @@ const Register = () => {
       password: '',
       confirmPassword: '',
       userType: '',
+      // phoneNumber: '',  // Added
+      // dateOfBirth: '',  // Added
     },
     validationSchema: Yup.object({
       firstName: Yup.string()
@@ -77,14 +80,32 @@ const Register = () => {
         .required('Please confirm your password'),
       userType: Yup.string()
         .required('Please select your user type'),
+      // phoneNumber: Yup.string()  // Added
+      //   .required('Phone number is required'),
+      // dateOfBirth: Yup.date()    // Added
+      //   .required('Date of birth is required')
+      //   .max(new Date(), 'Date of birth cannot be in the future'),
     }),
     onSubmit: async (values) => {
       setError('');
       setLoading(true);
       try {
-        await register(values);
+        console.log('Form values:', values);
+        
+        const registrationData = {
+          email: values.email,
+          password: values.password,
+          first_name: values.firstName,
+          last_name: values.lastName,
+          user_type: values.userType
+        };
+
+        console.log('Formatted registration data:', registrationData);
+        
+        await register(registrationData);
         navigate('/dashboard');
       } catch (err) {
+        console.error('Registration error:', err);
         setError(err.message || 'Registration failed. Please try again.');
       } finally {
         setLoading(false);
@@ -268,6 +289,44 @@ const Register = () => {
               ))}
             </TextField>
 
+            {/* <TextField
+              fullWidth
+              margin="normal"
+              name="phoneNumber"
+              label="Phone Number"
+              value={formik.values.phoneNumber}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.phoneNumber && Boolean(formik.errors.phoneNumber)}
+              helperText={formik.touched.phoneNumber && formik.errors.phoneNumber}
+              disabled={loading}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PhoneIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <TextField
+              fullWidth
+              margin="normal"
+              name="dateOfBirth"
+              label="Date of Birth"
+              type="date"
+              value={formik.values.dateOfBirth}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.dateOfBirth && Boolean(formik.errors.dateOfBirth)}
+              helperText={formik.touched.dateOfBirth && formik.errors.dateOfBirth}
+              disabled={loading}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+ */}
+
             <TextField
               fullWidth
               margin="normal"
@@ -322,6 +381,7 @@ const Register = () => {
               }}
             />
 
+           
             <Button
               type="submit"
               fullWidth

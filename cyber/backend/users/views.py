@@ -6,8 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.db import IntegrityError
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .serializers import UserSerializer
+from .serializers import UserSerializer, CustomTokenObtainPairSerializer, UserRegistrationSerializer
 
 User = get_user_model()
 
@@ -20,55 +19,38 @@ class UserRegistrationView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
-        first_name = request.data.get('firstName')
-        last_name = request.data.get('lastName')
-        user_type = request.data.get('userType')
+        print("Received registration data:", request.data)  # Debug log
+        
+        serializer = UserRegistrationSerializer(data={
+            'email': request.data.get('email'),
+            'password': request.data.get('password'),
+            'first_name': request.data.get('first_name'),
+            'last_name': request.data.get('last_name'),
+            'user_type': request.data.get('user_type')
+        })
 
-        if not email or not password or not first_name or not last_name or not user_type:
-            return Response({
-                'error': 'Please provide all required fields'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        if User.objects.filter(email=email).exists():
-            return Response({
-                'error': 'Email already exists'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            print("Serializer errors:", serializer.errors)  # Debug log
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Create username from email
-            username = email.split('@')[0]
-            base_username = username
-            counter = 1
-            
-            # Handle username uniqueness
-            while User.objects.filter(username=username).exists():
-                username = f"{base_username}{counter}"
-                counter += 1
-
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                password=password,
-                first_name=first_name,
-                last_name=last_name,
-                user_type=user_type
-            )
-            
+            user = serializer.save()
             refresh = RefreshToken.for_user(user)
+            
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
                 'user': {
                     'id': user.id,
                     'email': user.email,
-                    'firstName': user.first_name,
-                    'lastName': user.last_name,
-                    'userType': user.user_type
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'user_type': user.user_type
                 }
             }, status=status.HTTP_201_CREATED)
-        except IntegrityError as e:
+            
+        except Exception as e:
+            print("Registration error:", str(e))  # Debug log
             return Response({
                 'error': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -109,9 +91,9 @@ class UserLoginView(APIView):
             'user': {
                 'id': user.id,
                 'email': user.email,
-                'firstName': user.first_name,
-                'lastName': user.last_name,
-                'userType': user.user_type
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'user_type': user.user_type
             }
         }, status=status.HTTP_200_OK)
 
@@ -143,30 +125,22 @@ class UserLogoutView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
-        data['user'] = {
-            'id': self.user.id,
-            'email': self.user.email,
-            'firstName': self.user.first_name,
-            'lastName': self.user.last_name,
-            'userType': self.user.user_type
-        }
-        return data
-
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.user
+            
             response.data['user'] = {
-                'id': self.user.id,
-                'email': self.user.email,
-                'firstName': self.user.first_name,
-                'lastName': self.user.last_name,
-                'userType': self.user.user_type
+                'id': user.id,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'user_type': user.user_type
             }
         return response
 
